@@ -1,0 +1,29 @@
+= Conway's Game Of Life
+
+But in 3D. That's the hope for this project, anyways, in the unlikely scenario that 
+I actually finish it.
+
+== QuickStart
+
+**Note:** On Linux, you will need to install the development files for either X.Org or Wayland, depending on which one you are using for your desktop.
+
+Clone the repository.
+
+[source,bash]
+----
+git clone https://github.com/earthtraveller1/life-3d.git
+----
+
+Step into the repository.
+
+[source,bash]
+----
+cd life-3d
+----
+
+Build and run the project.
+
+[source,bash]
+----
+cargo run --release
+----
