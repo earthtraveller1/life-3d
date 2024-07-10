@@ -4,6 +4,9 @@ use glad_gl::gl;
 
 pub struct ShaderProgram(gl::GLuint);
 
+pub const MAIN_VERT: &str = include_str!("shaders/main.vert");
+pub const MAIN_FRAG: &str = include_str!("shaders/main.frag");
+
 // Creates an OpenGL shader of the specified type. `shader_type` must be of a
 // valid shader type
 unsafe fn create_shader(
@@ -43,6 +46,18 @@ unsafe fn create_shader(
     }
 
     shader
+}
+
+#[macro_export]
+macro_rules! shader_program_from_resources {
+    ($vert:expr, $frag:expr) => {
+        life_3d::shaders::ShaderProgram::new(
+            $vert,
+            Some(stringify!($vert)),
+            $frag,
+            Some(stringify!($frag)),
+        )
+    };
 }
 
 impl ShaderProgram {

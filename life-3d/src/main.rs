@@ -1,6 +1,8 @@
 use glad_gl::gl;
 use glfw::Context;
 
+use life_3d::{shaders, shader_program_from_resources};
+
 fn main() {
     let mut glfw = glfw::init(|error, message| eprintln!("[GLFW ERROR {:?}]: {}", error, message))
         .expect("Failed to initialize GLFW");
@@ -17,6 +19,8 @@ fn main() {
     window.make_current();
     glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
     gl::load(|sym| glfw.get_proc_address_raw(sym));
+
+    let shader_program = shader_program_from_resources!(shaders::MAIN_VERT, shaders::MAIN_FRAG);
 
     while !window.should_close() {
         unsafe {
