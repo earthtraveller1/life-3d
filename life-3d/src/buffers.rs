@@ -30,6 +30,14 @@ impl Buffer {
         }
     }
 
+    pub fn bind(&self) {
+        unsafe { gl::BindBuffer(self.get_target(), self.buffer) };
+    }
+
+    pub fn unbind(&self) {
+        unsafe { gl::BindBuffer(self.get_target(), 0) };
+    }
+
     pub fn with_data<T>(buffer_type: BufferType, data: &[T]) -> Buffer {
         let buffer = Buffer::new(buffer_type);
 
@@ -52,6 +60,51 @@ impl Drop for Buffer {
     fn drop(&mut self) {
         unsafe {
             gl::DeleteBuffers(1, &self.buffer);
+        }
+    }
+}
+
+pub struct VertexArray {
+    vertex_array: GLuint,
+}
+
+pub unsafe trait BufferAttributes {
+    unsafe fn vertex_attributes();
+}
+
+impl VertexArray {
+    pub fn new() -> VertexArray {
+        unsafe {
+            let mut vertex_array = 0;
+            gl::GenVertexArrays(1, &mut vertex_array);
+
+            Self { vertex_array }
+        }
+    }
+
+    pub fn bind(&self) {
+        unsafe { gl::BindVertexArray(self.vertex_array) };
+    }
+
+    pub fn unbind() {
+        unsafe { gl::BindVertexArray(0) };
+    }
+
+    pub fn bind_buffer_and_attributes<Attributes: BufferAttributes>(&self, buffer: &Buffer) {
+        unsafe {
+            self.bind();
+            buffer.bind();
+            Attributes::vertex_attributes();
+            buffer.unbind();
+            Self::unbind();
+        }
+    }
+}
+
+impl Drop for VertexArray {
+    fn drop(&mut self) {
+        unsafe {
+            gl::DeleteVertexArrays(1, &self.vertex_array);
         }
     }
 }
