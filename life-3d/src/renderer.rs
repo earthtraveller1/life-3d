@@ -6,11 +6,52 @@ use crate::{
     shaders::ShaderProgram,
 };
 
+use std::{
+    mem::{offset_of, size_of},
+    os::raw::c_void,
+};
+
 #[repr(C)]
 struct Vertex {
     position: Vec3,
     normal: Vec3,
     uv: Vec2,
+}
+
+unsafe impl BufferAttributes for Vertex {
+    unsafe fn vertex_attributes() {
+        gl::VertexAttribPointer(
+            0,
+            3,
+            gl::FLOAT,
+            gl::FALSE,
+            size_of::<Vertex>() as i32,
+            offset_of!(Vertex, position) as *const c_void,
+        );
+        gl::EnableVertexAttribArray(0);
+
+        gl::VertexAttribPointer(
+            1,
+            3,
+            gl::FLOAT,
+            gl::FALSE,
+            size_of::<Vertex>() as i32,
+            offset_of!(Vertex, normal) as *const c_void,
+        );
+        gl::EnableVertexAttribArray(1);
+        
+        gl::VertexAttribPointer(
+            2,
+            2,
+            gl::FLOAT,
+            gl::FALSE,
+            size_of::<Vertex>() as i32,
+            offset_of!(Vertex, uv) as *const c_void,
+        );
+        gl::EnableVertexAttribArray(2);
+        
+        
+    }
 }
 
 struct Mesh {
