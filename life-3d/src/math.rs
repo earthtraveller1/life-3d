@@ -1,6 +1,7 @@
 use std::ops::Add;
 
 #[repr(C)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
@@ -26,6 +27,7 @@ impl Add for Vec3 {
 }
 
 #[repr(C)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Vec2 {
     pub x: f32,
     pub y: f32,
