@@ -38,6 +38,13 @@ impl Mesh {
             indices: Vec::new(),
         };
 
+        mesh.append_cube_face(size, Axis::X, true);
+        mesh.append_cube_face(size, Axis::X, false);
+        mesh.append_cube_face(size, Axis::Y, true);
+        mesh.append_cube_face(size, Axis::Y, false);
+        mesh.append_cube_face(size, Axis::Z, true);
+        mesh.append_cube_face(size, Axis::Z, false);
+
         mesh
     }
 
