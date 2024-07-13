@@ -1,7 +1,7 @@
-use glad_gl::gl;
+use glad_gl::gl::{self, GLsizei};
 
 use crate::{
-    buffers::{Buffer, BufferType},
+    buffers::{Buffer, BufferType, BufferAttributes, VertexArray},
     math::{Vec2, Vec3},
     shaders::ShaderProgram,
 };
@@ -54,7 +54,7 @@ unsafe impl BufferAttributes for Vertex {
     }
 }
 
-struct Mesh {
+pub struct Mesh {
     vertices: Vec<Vertex>,
     indices: Vec<u32>,
 }
@@ -66,14 +66,14 @@ enum Axis {
 }
 
 impl Mesh {
-    fn new() -> Mesh {
+    pub fn new() -> Mesh {
         Mesh {
             vertices: Vec::new(),
             indices: Vec::new(),
         }
     }
 
-    fn cube(size: f32) -> Mesh {
+    pub fn cube(size: f32) -> Mesh {
         let mut mesh = Mesh {
             vertices: Vec::new(),
             indices: Vec::new(),
@@ -138,6 +138,36 @@ impl Mesh {
         for index in indices {
             self.indices.push(index + vertex_offset);
         }
+    }
+}
+
+pub struct Renderer {
+    vertex_buffer: Buffer,
+    element_buffer: Buffer,
+    vertex_array: VertexArray,
+
+    indices_count: GLsizei,
+}
+
+impl Renderer {
+    pub fn new(target_mesh: &Mesh) -> Renderer {
+        let vertex_buffer = Buffer::with_data(BufferType::Vertex, target_mesh.vertices.as_slice());        
+        let element_buffer = Buffer::with_data(BufferType::Vertex, target_mesh.indices.as_slice());
+
+        let vertex_array = VertexArray::new();
+        vertex_array.bind_buffer_and_attributes::<Vertex>(&vertex_buffer);
+
+        Renderer {
+            vertex_buffer,
+            element_buffer,
+            vertex_array,
+            indices_count: target_mesh.indices.len() as i32,
+        }
+    }
+
+    pub fn render(&self) {
+        self.vertex_array.bind();
+        unsafe { gl::DrawElements(gl::TRIANGLES, self.indices_count, gl::UNSIGNED_INT, std::ptr::null()) };
     }
 }
 
