@@ -41,11 +41,49 @@ impl Vec2 {
 
 impl Add for Vec2 {
     type Output = Vec2;
-    
+
     fn add(self, rhs: Self) -> Self::Output {
         Vec2 {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Default, Clone, PartialEq)]
+pub struct Mat4 {
+    data: [[f32; 4]; 4],
+}
+
+impl Mat4 {
+    pub fn new(x: f32) -> Mat4 {
+        Mat4 {
+            data: [
+                [x, 0.0, 0.0, 0.0],
+                [0.0, x, 0.0, 0.0],
+                [0.0, 0.0, x, 0.0],
+                [0.0, 0.0, 0.0, x],
+            ],
+        }
+    }
+
+    pub fn perspective(aspect_ratio: f32, z_near: f32, z_far: f32, fov: f32) -> Mat4 {
+        let tan_half_fov = (fov / 2.0).to_radians().tan();
+        let z_range = z_near - z_far;
+
+        Mat4 {
+            data: [
+                [1.0 / (aspect_ratio * tan_half_fov), 0.0, 0.0, 0.0],
+                [0.0, 1.0 / tan_half_fov, 0.0, 0.0],
+                [
+                    0.0,
+                    0.0,
+                    (-z_near - z_far) / z_range,
+                    2.0 * z_far * z_near / z_range,
+                ],
+                [0.0, 0.0, 1.0, 0.0],
+            ],
         }
     }
 }
