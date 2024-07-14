@@ -47,7 +47,7 @@ impl Buffer {
                 buffer.get_target(),
                 std::mem::size_of::<T>().try_into().unwrap(),
                 std::mem::transmute(data.as_ptr()),
-                gl::ARRAY_BUFFER,
+                gl::STATIC_DRAW,
             );
             gl::BindBuffer(buffer.get_target(), 0);
         }
