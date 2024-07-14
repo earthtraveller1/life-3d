@@ -45,7 +45,7 @@ impl Buffer {
             gl::BindBuffer(buffer.get_target(), buffer.buffer);
             gl::BufferData(
                 buffer.get_target(),
-                std::mem::size_of::<T>().try_into().unwrap(),
+                data.len() as isize * std::mem::size_of::<T>() as isize,
                 std::mem::transmute(data.as_ptr()),
                 gl::STATIC_DRAW,
             );
