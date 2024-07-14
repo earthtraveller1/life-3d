@@ -7,7 +7,7 @@ use glad_gl::gl;
 use glfw::Context;
 
 use life_3d::{
-    renderer::{Mesh, Renderer, Axis},
+    renderer::{Axis, Mesh, Renderer},
     shader_program_from_resources, shaders,
 };
 
@@ -75,16 +75,29 @@ fn main() {
 
     let shader_program = shader_program_from_resources!(shaders::MAIN_VERT, shaders::MAIN_FRAG);
     let mut mesh = Mesh::new();
-    mesh.append_cube_face(1.0, Axis::Z, true);
+    mesh.append_cube_face(1.0, Axis::Z, true, 0.0);
     let renderer = Renderer::new(&mesh);
+
+    let window_size = window.get_size();
+    let (window_width, window_height) = window_size;
+    let (window_width, window_height): (f32, f32) = (
+        window_width as f32,
+        window_height as f32,
+    );
+
+    let mut projection =
+        life_3d::math::Mat4::perspective(window_width / window_height, 0.1, 100.0, 45.0);
+    let model = life_3d::math::Mat4::translate(0.0, 0.0, -5.0);
 
     while !window.should_close() {
         unsafe {
-            gl::ClearColor(0.0, 1.0, 0.0, 1.0);
+            gl::ClearColor(0.0, 0.0, 0.0, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
 
-        shader_program.use_program();
+        let shader_program = shader_program.use_program();
+        shader_program.set_uniform("model", &model);
+        shader_program.set_uniform("projection", &projection);
         renderer.render();
 
         window.swap_buffers();
@@ -94,6 +107,12 @@ fn main() {
             match event {
                 glfw::WindowEvent::FramebufferSize(width, height) => unsafe {
                     gl::Viewport(0, 0, width, height);
+                    let (width, height) = (width as f32, height as f32);
+
+                    projection =
+                        life_3d::math::Mat4::perspective(width / height, 0.1, 100.0, 45.0);
+
+                    eprintln!("projection = {:?}", projection);
                 },
                 _ => {}
             }
