@@ -6,7 +6,10 @@ use std::{
 use glad_gl::gl;
 use glfw::Context;
 
-use life_3d::{shader_program_from_resources, shaders};
+use life_3d::{
+    renderer::{Mesh, Renderer, Axis},
+    shader_program_from_resources, shaders,
+};
 
 extern "system" fn opengl_debug_callback(
     _source: gl::GLenum,
@@ -48,6 +51,7 @@ fn main() {
     let (mut window, events) = glfw
         .create_window(1280, 720, "Life 3D", glfw::WindowMode::Windowed)
         .expect("Failed to create the GLFW window.");
+    window.set_framebuffer_size_polling(true);
 
     window.make_current();
     glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
@@ -70,12 +74,18 @@ fn main() {
     }
 
     let shader_program = shader_program_from_resources!(shaders::MAIN_VERT, shaders::MAIN_FRAG);
+    let mut mesh = Mesh::new();
+    mesh.append_cube_face(1.0, Axis::Z, true);
+    let renderer = Renderer::new(&mesh);
 
     while !window.should_close() {
         unsafe {
-            gl::ClearColor(0.0, 0.0, 0.0, 1.0);
+            gl::ClearColor(0.0, 1.0, 0.0, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
+
+        shader_program.use_program();
+        renderer.render();
 
         window.swap_buffers();
         glfw.poll_events();
