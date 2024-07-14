@@ -1,5 +1,9 @@
 use std::ops::Add;
 
+use glad_gl::gl;
+
+use crate::shaders::ShaderUniform;
+
 #[repr(C)]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Vec3 {
@@ -85,5 +89,11 @@ impl Mat4 {
                 [0.0, 0.0, 1.0, 0.0],
             ],
         }
+    }
+}
+
+unsafe impl ShaderUniform for Mat4 {
+    unsafe fn set_uniform(&self, location: glad_gl::gl::GLint) {
+        gl::UniformMatrix4fv(location, 1, gl::FALSE, self.data.as_ptr() as *const f32);
     }
 }

@@ -60,6 +60,10 @@ macro_rules! shader_program_from_resources {
     };
 }
 
+pub unsafe trait ShaderUniform {
+    unsafe fn set_uniform(&self, location: gl::GLint);
+}
+
 impl ShaderProgram {
     pub fn new(
         vertex_source: &str,
@@ -103,6 +107,17 @@ impl ShaderProgram {
             gl::DeleteShader(fragment);
 
             ShaderProgram(program)
+        }
+    }
+
+    pub fn set_uniform<T>(&self, name: &str, value: &T)
+    where
+        T: ShaderUniform,
+    {
+        unsafe {
+            let name = CString::new(name).unwrap();
+            let location = gl::GetUniformLocation(self.0, name.as_ptr());
+            value.set_uniform(location);
         }
     }
 
