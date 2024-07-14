@@ -195,6 +195,24 @@ mod tests {
     }
 
     #[test]
+    fn back_cube_face_tests() {
+        let mut mesh = Mesh::new();
+        mesh.append_cube_face(1.0, Axis::Z, false);
+
+        let expected_positions = [
+            Vec3::new(0.5, 0.5, -0.5),
+            Vec3::new(0.5, -0.5, -0.5),
+            Vec3::new(-0.5, -0.5, -0.5),
+            Vec3::new(-0.5, 0.5, -0.5),
+        ];
+
+        for (vertex, expected_position) in mesh.vertices.iter().zip(expected_positions.iter()) {
+            assert_eq!(vertex.normal, Vec3::new(0.0, 0.0, 1.0));
+            assert_eq!(vertex.position, expected_position.clone());
+        }
+    }
+
+    #[test]
     fn side_cube_face_test() {
         let mut mesh = Mesh::new();
         mesh.append_cube_face(1.0, Axis::X, false);
