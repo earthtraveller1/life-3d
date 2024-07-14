@@ -3,6 +3,7 @@ use std::ffi::{CStr, CString};
 use glad_gl::gl;
 
 pub struct ShaderProgram(gl::GLuint);
+pub struct UsedShaderProgram(gl::GLuint);
 
 pub const MAIN_VERT: &str = include_str!("shaders/main.vert");
 pub const MAIN_FRAG: &str = include_str!("shaders/main.frag");
@@ -110,6 +111,15 @@ impl ShaderProgram {
         }
     }
 
+    pub fn use_program(&self) -> UsedShaderProgram {
+        unsafe {
+            gl::UseProgram(self.0);
+            UsedShaderProgram(self.0)
+        }
+    }
+}
+
+impl UsedShaderProgram {
     pub fn set_uniform<T>(&self, name: &str, value: &T)
     where
         T: ShaderUniform,
@@ -121,17 +131,20 @@ impl ShaderProgram {
         }
     }
 
-    pub fn use_program(&self) {
-        unsafe {
-            gl::UseProgram(self.0);
-        }
-    }
 }
 
 impl Drop for ShaderProgram {
     fn drop(&mut self) {
         unsafe {
             gl::DeleteProgram(self.0);
+        }
+    }
+}
+
+impl Drop for UsedShaderProgram {
+    fn drop(&mut self) {
+        unsafe {
+            gl::UseProgram(0);
         }
     }
 }
