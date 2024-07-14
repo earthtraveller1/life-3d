@@ -1,9 +1,8 @@
 use glad_gl::gl::{self, GLsizei};
 
 use crate::{
-    buffers::{Buffer, BufferType, BufferAttributes, VertexArray},
+    buffers::{Buffer, BufferAttributes, BufferType, VertexArray},
     math::{Vec2, Vec3},
-    shaders::ShaderProgram,
 };
 
 use std::{
@@ -39,7 +38,7 @@ unsafe impl BufferAttributes for Vertex {
             offset_of!(Vertex, normal) as *const c_void,
         );
         gl::EnableVertexAttribArray(1);
-        
+
         gl::VertexAttribPointer(
             2,
             2,
@@ -49,8 +48,6 @@ unsafe impl BufferAttributes for Vertex {
             offset_of!(Vertex, uv) as *const c_void,
         );
         gl::EnableVertexAttribArray(2);
-        
-        
     }
 }
 
@@ -151,7 +148,7 @@ pub struct Renderer {
 
 impl Renderer {
     pub fn new(target_mesh: &Mesh) -> Renderer {
-        let vertex_buffer = Buffer::with_data(BufferType::Vertex, target_mesh.vertices.as_slice());        
+        let vertex_buffer = Buffer::with_data(BufferType::Vertex, target_mesh.vertices.as_slice());
         let element_buffer = Buffer::with_data(BufferType::Index, target_mesh.indices.as_slice());
 
         let vertex_array = VertexArray::new();
@@ -168,14 +165,21 @@ impl Renderer {
     pub fn render(&self) {
         self.vertex_array.bind();
         self.element_buffer.bind();
-        unsafe { gl::DrawElements(gl::TRIANGLES, self.indices_count, gl::UNSIGNED_INT, std::ptr::null()) };
+        unsafe {
+            gl::DrawElements(
+                gl::TRIANGLES,
+                self.indices_count,
+                gl::UNSIGNED_INT,
+                std::ptr::null(),
+            )
+        };
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::renderer::*;
-    
+
     #[test]
     fn cube_face_tests() {
         let mut mesh = Mesh::new();
