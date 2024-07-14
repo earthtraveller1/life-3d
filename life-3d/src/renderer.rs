@@ -76,17 +76,17 @@ impl Mesh {
             indices: Vec::new(),
         };
 
-        mesh.append_cube_face(size, Axis::X, true);
-        mesh.append_cube_face(size, Axis::X, false);
-        mesh.append_cube_face(size, Axis::Y, true);
-        mesh.append_cube_face(size, Axis::Y, false);
-        mesh.append_cube_face(size, Axis::Z, true);
-        mesh.append_cube_face(size, Axis::Z, false);
+        mesh.append_cube_face(size, Axis::X, true, size);
+        mesh.append_cube_face(size, Axis::X, false, size);
+        mesh.append_cube_face(size, Axis::Y, true, size);
+        mesh.append_cube_face(size, Axis::Y, false, size);
+        mesh.append_cube_face(size, Axis::Z, true, size);
+        mesh.append_cube_face(size, Axis::Z, false, size);
 
         mesh
     }
 
-    pub fn append_cube_face(&mut self, size: f32, axis: Axis, positive: bool) {
+    pub fn append_cube_face(&mut self, size: f32, axis: Axis, positive: bool, depth: f32) {
         let size = size * 0.5;
         let values = [
             Vec2::new(size, size),
@@ -95,7 +95,7 @@ impl Mesh {
             Vec2::new(-size, size),
         ];
 
-        let depth_value = if positive { size } else { -size };
+        let depth_value = if positive { depth } else { -depth };
         // Save it here, as we will be appending stuff to the vertices vector
         // later on.
         let vertex_offset: u32 = self.vertices.len().try_into().unwrap();
@@ -183,7 +183,7 @@ mod tests {
     #[test]
     fn cube_face_tests() {
         let mut mesh = Mesh::new();
-        mesh.append_cube_face(1.0, Axis::Z, true);
+        mesh.append_cube_face(1.0, Axis::Z, true, 0.5);
 
         let expected_positions = [
             Vec3::new(0.5, 0.5, 0.5),
@@ -201,7 +201,7 @@ mod tests {
     #[test]
     fn back_cube_face_tests() {
         let mut mesh = Mesh::new();
-        mesh.append_cube_face(1.0, Axis::Z, false);
+        mesh.append_cube_face(1.0, Axis::Z, false, 0.5);
 
         let expected_positions = [
             Vec3::new(0.5, 0.5, -0.5),
@@ -219,7 +219,7 @@ mod tests {
     #[test]
     fn side_cube_face_test() {
         let mut mesh = Mesh::new();
-        mesh.append_cube_face(1.0, Axis::X, false);
+        mesh.append_cube_face(1.0, Axis::X, false, 0.5);
 
         let expected_positions = [
             Vec3::new(-0.5, 0.5, 0.5),
