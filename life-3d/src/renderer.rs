@@ -59,7 +59,7 @@ pub struct Mesh {
     indices: Vec<u32>,
 }
 
-enum Axis {
+pub enum Axis {
     X,
     Y,
     Z,
@@ -89,7 +89,7 @@ impl Mesh {
         mesh
     }
 
-    fn append_cube_face(&mut self, size: f32, axis: Axis, positive: bool) {
+    pub fn append_cube_face(&mut self, size: f32, axis: Axis, positive: bool) {
         let size = size * 0.5;
         let values = [
             Vec2::new(size, size),
@@ -152,7 +152,7 @@ pub struct Renderer {
 impl Renderer {
     pub fn new(target_mesh: &Mesh) -> Renderer {
         let vertex_buffer = Buffer::with_data(BufferType::Vertex, target_mesh.vertices.as_slice());        
-        let element_buffer = Buffer::with_data(BufferType::Vertex, target_mesh.indices.as_slice());
+        let element_buffer = Buffer::with_data(BufferType::Index, target_mesh.indices.as_slice());
 
         let vertex_array = VertexArray::new();
         vertex_array.bind_buffer_and_attributes::<Vertex>(&vertex_buffer);
@@ -167,6 +167,7 @@ impl Renderer {
 
     pub fn render(&self) {
         self.vertex_array.bind();
+        self.element_buffer.bind();
         unsafe { gl::DrawElements(gl::TRIANGLES, self.indices_count, gl::UNSIGNED_INT, std::ptr::null()) };
     }
 }
