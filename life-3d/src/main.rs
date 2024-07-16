@@ -7,6 +7,7 @@ use glad_gl::gl;
 use glfw::Context;
 
 use life_3d::{
+    math::{Mat4, Quaternion, Vec3},
     renderer::{Axis, Mesh, Renderer},
     shader_program_from_resources, shaders,
 };
@@ -80,20 +81,22 @@ fn main() {
 
     let window_size = window.get_size();
     let (window_width, window_height) = window_size;
-    let (window_width, window_height): (f32, f32) = (
-        window_width as f32,
-        window_height as f32,
-    );
+    let (window_width, window_height): (f32, f32) = (window_width as f32, window_height as f32);
 
     let mut projection =
         life_3d::math::Mat4::perspective(window_width / window_height, 0.1, 100.0, 45.0);
-    let model = life_3d::math::Mat4::translate(0.0, 0.0, -5.0);
 
     while !window.should_close() {
         unsafe {
             gl::ClearColor(0.0, 0.0, 0.0, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
+
+        let time = glfw.get_time();
+
+        let axis = Vec3::new(0.5, 1.0, 0.0);
+        let rotation = Quaternion::new(&axis, time as f32);
+        let model = Mat4::translate(0.0, 0.0, -5.0) * rotation.to_rotation_matrix() ;
 
         let shader_program = shader_program.use_program();
         shader_program.set_uniform("model", &model);
@@ -109,8 +112,7 @@ fn main() {
                     gl::Viewport(0, 0, width, height);
                     let (width, height) = (width as f32, height as f32);
 
-                    projection =
-                        life_3d::math::Mat4::perspective(width / height, 0.1, 100.0, 45.0);
+                    projection = life_3d::math::Mat4::perspective(width / height, 0.1, 100.0, 45.0);
 
                     eprintln!("projection = {:?}", projection);
                 },
