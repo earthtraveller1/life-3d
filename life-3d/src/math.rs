@@ -24,6 +24,19 @@ impl Vec3 {
     pub fn normalize(&self) -> Vec3 {
         self.clone() / self.len()
     }
+
+    pub fn dot(&self, other: &Vec3) -> f32 {
+        self.x * other.x + self.y * other.y + self.z * other.z
+    }
+
+    // Source: https://en.wikipedia.org/wiki/Cross_product#Computing
+    pub fn cross(&self, other: &Vec3) -> Vec3 {
+        Vec3::new(
+            self.y * other.z - self.z * other.y,
+            self.z * other.x - self.x * other.z,
+            self.x * other.y - self.y * other.x,
+        )
+    }
 }
 
 impl Add for Vec3 {
@@ -43,6 +56,14 @@ impl Div<f32> for Vec3 {
 
     fn div(self, rhs: f32) -> Self::Output {
         Vec3::new(self.x / rhs, self.y / rhs, self.z / rhs)
+    }
+}
+
+impl Mul<f32> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        Vec3::new(self.x * rhs, self.y * rhs, self.z * rhs)
     }
 }
 
@@ -137,6 +158,23 @@ impl Quaternion {
     // Source: https://songho.ca/math/quaternion/quaternion.html#algebra
     pub fn conjugate(&self) -> Quaternion {
         Quaternion(Vec4::new(-self.0.x, -self.0.y, -self.0.z, self.0.w))
+    }
+}
+
+impl Mul for Quaternion {
+    type Output = Quaternion;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        let self_v = Vec3::new(self.0.x, self.0.y, self.0.z);
+        let rhs_v = Vec3::new(rhs.0.x, rhs.0.y, rhs.0.z);
+        let new_v = self_v.cross(&rhs_v) + rhs_v.clone() * self.0.w + self_v.clone() * rhs.0.w;
+
+        Quaternion(Vec4::new(
+            new_v.x,
+            new_v.y,
+            new_v.z,
+            self.0.w * rhs.0.w - self_v.dot(&rhs_v),
+        ))
     }
 }
 
