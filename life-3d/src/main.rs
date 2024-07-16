@@ -112,7 +112,7 @@ fn main() {
             let horizontal_rotation = Quaternion::new(&horizontal_axis, delta_mouse_x.to_radians() as f32 / 10.0);
             let vertical_rotation = Quaternion::new(&vertical_axis, delta_mouse_y.to_radians() as f32 / 10.0);
 
-            rotation = rotation * horizontal_rotation * vertical_rotation;
+            rotation = horizontal_rotation * vertical_rotation * rotation;
         }
 
         let model = Mat4::translate(0.0, 0.0, -5.0) * rotation.to_rotation_matrix();
