@@ -94,7 +94,7 @@ fn main() {
 
         let time = glfw.get_time();
 
-        let axis = Vec3::new(0.5, 1.0, 0.0);
+        let axis = Vec3::new(0.5, 1.0, 0.0).normalize();
         let rotation = Quaternion::new(&axis, time as f32);
         let model = Mat4::translate(0.0, 0.0, -5.0) * rotation.to_rotation_matrix() ;
 

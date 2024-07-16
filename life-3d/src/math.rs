@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul};
+use std::ops::{Add, Div, Mul};
 
 use glad_gl::gl;
 
@@ -16,6 +16,14 @@ impl Vec3 {
     pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Vec3 { x, y, z }
     }
+
+    pub fn len(&self) -> f32 {
+        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
+    }
+
+    pub fn normalize(&self) -> Vec3 {
+        self.clone() / self.len()
+    }
 }
 
 impl Add for Vec3 {
@@ -27,6 +35,14 @@ impl Add for Vec3 {
             y: self.y + rhs.y,
             z: self.z + rhs.z,
         }
+    }
+}
+
+impl Div<f32> for Vec3 {
+    type Output = Vec3;
+
+    fn div(self, rhs: f32) -> Self::Output {
+        Vec3::new(self.x / rhs, self.y / rhs, self.z / rhs)
     }
 }
 
