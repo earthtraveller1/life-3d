@@ -75,8 +75,7 @@ fn main() {
     }
 
     let shader_program = shader_program_from_resources!(shaders::MAIN_VERT, shaders::MAIN_FRAG);
-    let mut mesh = Mesh::new();
-    mesh.append_cube_face(1.0, Axis::Z, true, 0.0);
+    let mut mesh = Mesh::cube(1.0);
     let renderer = Renderer::new(&mesh);
 
     let window_size = window.get_size();
@@ -86,17 +85,38 @@ fn main() {
     let mut projection =
         life_3d::math::Mat4::perspective(window_width / window_height, 0.1, 100.0, 45.0);
 
+    let mut rotation = Quaternion::new(&Vec3::new(1.0, 0.0, 0.0), 0.0);
+
+    let (mut previous_mouse_x, mut previous_mouse_y) = (0.0, 0.0);
+    let mut has_set_mouse_x = false;
+
     while !window.should_close() {
         unsafe {
             gl::ClearColor(0.0, 0.0, 0.0, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
 
-        let time = glfw.get_time();
+        let (mouse_x, mouse_y) = window.get_cursor_pos();
+        if !has_set_mouse_x {
+            previous_mouse_x = mouse_x;
+            previous_mouse_y = mouse_y;
+            has_set_mouse_x = true;
+        }
 
-        let axis = Vec3::new(0.5, 1.0, 0.0).normalize();
-        let rotation = Quaternion::new(&axis, time as f32);
-        let model = Mat4::translate(0.0, 0.0, -5.0) * rotation.to_rotation_matrix() ;
+        if let glfw::Action::Press = window.get_mouse_button(glfw::MouseButtonMiddle) {
+            eprintln!("eys");
+            let (delta_mouse_x, delta_mouse_y) =
+                (mouse_x - previous_mouse_x, mouse_y - previous_mouse_y);
+
+            let horizontal_axis = Vec3::new(0.0, 1.0, 0.0).normalize();
+            let vertical_axis = Vec3::new(1.0, 0.0, 0.0).normalize();
+            let horizontal_rotation = Quaternion::new(&horizontal_axis, delta_mouse_x.to_radians() as f32 / 10.0);
+            let vertical_rotation = Quaternion::new(&vertical_axis, delta_mouse_y.to_radians() as f32 / 10.0);
+
+            rotation = rotation * horizontal_rotation * vertical_rotation;
+        }
+
+        let model = Mat4::translate(0.0, 0.0, -5.0) * rotation.to_rotation_matrix();
 
         let shader_program = shader_program.use_program();
         shader_program.set_uniform("model", &model);
@@ -119,5 +139,8 @@ fn main() {
                 _ => {}
             }
         }
+
+        previous_mouse_x = mouse_x;
+        previous_mouse_y = mouse_y;
     }
 }
