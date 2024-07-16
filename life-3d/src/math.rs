@@ -1,4 +1,4 @@
-use std::ops::Add;
+use std::ops::{Add, Mul};
 
 use glad_gl::gl;
 
@@ -167,6 +167,25 @@ impl Mat4 {
                 [x, y, z, 1.0],
             ],
         }
+    }
+}
+
+impl Mul for Mat4 {
+    type Output = Mat4;
+
+    fn mul(&self, rhs: Self) -> Self::Output {
+        let mut result = Mat4::new(1.0);
+
+        for column in 0..4 {
+            for row in 0..4 {
+                result[column][row] = rhs.data[column][0] * self.data[0][row]
+                    + rhs.data[column][1] * self.data[1][row]
+                    + rhs.data[column][2] * self.data[2][row]
+                    + rhs.data[column][3] * self.data[3][row];
+            }
+        }
+
+        result
     }
 }
 
