@@ -77,7 +77,7 @@ impl Quaternion {
     // Note: `angle` must be in radians.
     // Axis must also be a unit vector.
     // Source: http://www.faqs.org/faqs/graphics/algorithms-faq/
-    pub fn new(axis: &Vec3, angle: f32) {
+    pub fn new(axis: &Vec3, angle: f32) -> Quaternion {
         Quaternion(Vec4::new(
             axis.x * (angle / 2.0).sin(),
             axis.y * (angle / 2.0).sin(),
@@ -98,8 +98,8 @@ impl Quaternion {
                 [
                     1.0 - 2.0 * (y * y + z * z),
                     2.0 * (x * y + w * z),
-                    2 * (x * z - w * y),
-                    0,
+                    2.0 * (x * z - w * y),
+                    0.0,
                 ],
                 [
                     2.0 * (x * y - w * z),
@@ -173,12 +173,12 @@ impl Mat4 {
 impl Mul for Mat4 {
     type Output = Mat4;
 
-    fn mul(&self, rhs: Self) -> Self::Output {
+    fn mul(self, rhs: Self) -> Self::Output {
         let mut result = Mat4::new(1.0);
 
         for column in 0..4 {
             for row in 0..4 {
-                result[column][row] = rhs.data[column][0] * self.data[0][row]
+                result.data[column][row] = rhs.data[column][0] * self.data[0][row]
                     + rhs.data[column][1] * self.data[1][row]
                     + rhs.data[column][2] * self.data[2][row]
                     + rhs.data[column][3] * self.data[3][row];
