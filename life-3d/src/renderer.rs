@@ -154,6 +154,10 @@ impl Renderer {
         let vertex_array = VertexArray::new();
         vertex_array.bind_buffer_and_attributes::<Vertex>(&vertex_buffer);
 
+        unsafe {
+            gl::Enable(gl::DEPTH_TEST);
+        }
+
         Renderer {
             vertex_buffer,
             element_buffer,

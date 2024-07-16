@@ -93,7 +93,7 @@ fn main() {
     while !window.should_close() {
         unsafe {
             gl::ClearColor(0.0, 0.0, 0.0, 1.0);
-            gl::Clear(gl::COLOR_BUFFER_BIT);
+            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
 
         let (mouse_x, mouse_y) = window.get_cursor_pos();
@@ -104,7 +104,6 @@ fn main() {
         }
 
         if let glfw::Action::Press = window.get_mouse_button(glfw::MouseButtonMiddle) {
-            eprintln!("eys");
             let (delta_mouse_x, delta_mouse_y) =
                 (mouse_x - previous_mouse_x, mouse_y - previous_mouse_y);
 
