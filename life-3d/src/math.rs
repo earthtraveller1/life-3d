@@ -56,6 +56,76 @@ impl Add for Vec2 {
 
 #[repr(C)]
 #[derive(Debug, Default, Clone, PartialEq)]
+pub struct Vec4 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
+}
+
+impl Vec4 {
+    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Vec4 {
+        Vec4 { x, y, z, w }
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Default, Clone, PartialEq)]
+pub struct Quaternion(Vec4);
+
+impl Quaternion {
+    // Note: `angle` must be in radians.
+    // Axis must also be a unit vector.
+    // Source: http://www.faqs.org/faqs/graphics/algorithms-faq/
+    pub fn new(axis: &Vec3, angle: f32) {
+        Quaternion(Vec4::new(
+            axis.x * (angle / 2.0).sin(),
+            axis.y * (angle / 2.0).sin(),
+            axis.z * (angle / 2.0).sin(),
+            (angle / 2.0).cos(),
+        ))
+    }
+
+    // Source: http://www.faqs.org/faqs/graphics/algorithms-faq/
+    pub fn to_rotation_matrix(&self) -> Mat4 {
+        let x = self.0.x;
+        let y = self.0.y;
+        let z = self.0.z;
+        let w = self.0.w;
+
+        Mat4 {
+            data: [
+                [
+                    1.0 - 2.0 * (y * y + z * z),
+                    2.0 * (x * y + w * z),
+                    2 * (x * z - w * y),
+                    0,
+                ],
+                [
+                    2.0 * (x * y - w * z),
+                    1.0 - 2.0 * (x * x + z * z),
+                    2.0 * (y * z + w * x),
+                    0.0,
+                ],
+                [
+                    2.0 * (x * z + w * y),
+                    2.0 * (y * z - w * x),
+                    1.0 - 2.0 * (x * x + y * y),
+                    0.0,
+                ],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        }
+    }
+
+    // Source: https://songho.ca/math/quaternion/quaternion.html#algebra
+    pub fn conjugate(&self) -> Quaternion {
+        Quaternion(Vec4::new(-self.0.x, -self.0.y, -self.0.z, self.0.w))
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Mat4 {
     data: [[f32; 4]; 4],
 }
