@@ -20,7 +20,7 @@ impl Cell {
 }
 
 const ARENA_SIZE: usize = 128;
-type CellsArray = [[[Cell; ARENA_SIZE]; ARENA_SIZE]; ARENA_SIZE];
+type CellsArray = Vec<[[Cell; ARENA_SIZE]; ARENA_SIZE]>;
 
 pub struct GameOfLife {
     cells_1: CellsArray,
@@ -32,8 +32,8 @@ pub struct GameOfLife {
 impl GameOfLife {
     pub fn new() -> GameOfLife {
         GameOfLife {
-            cells_1: [[[Cell::Dead; ARENA_SIZE]; ARENA_SIZE]; ARENA_SIZE],
-            cells_2: [[[Cell::Dead; ARENA_SIZE]; ARENA_SIZE]; ARENA_SIZE],
+            cells_1: vec![[[Cell::Dead; ARENA_SIZE]; ARENA_SIZE]; ARENA_SIZE],
+            cells_2: vec![[[Cell::Dead; ARENA_SIZE]; ARENA_SIZE]; ARENA_SIZE],
             using_cells_1: true,
         }
     }
@@ -41,15 +41,15 @@ impl GameOfLife {
     pub fn living_neighbours(&self, cell_x: usize, cell_y: usize, cell_z: usize) -> u32 {
         let mut neighbours_count = 0;
 
-        for y_offset in -1..1 as i32 {
-            for x_offset in -1..1 as i32 {
-                for z_offset in -1..1 as i32 {
+        for y_offset in -1..=1 as i32 {
+            for x_offset in -1..=1 as i32 {
+                for z_offset in -1..=1 as i32 {
                     if y_offset == 0 && x_offset == 0 && z_offset == 0 {
                         continue;
                     }
 
                     let neighbour_x = ((cell_x as i32 + x_offset) % ARENA_SIZE as i32) as usize;
-                    let neighbour_y  = ((cell_y as i32+ y_offset) % ARENA_SIZE as i32) as usize;
+                    let neighbour_y = ((cell_y as i32 + y_offset) % ARENA_SIZE as i32) as usize;
                     let neighbour_z = ((cell_z as i32 + z_offset) % ARENA_SIZE as i32) as usize;
 
                     if self.cell(neighbour_x, neighbour_y, neighbour_z).is_alive() {
@@ -104,5 +104,21 @@ impl GameOfLife {
 
     pub fn flip_buffers(&mut self) {
         self.using_cells_1 = !self.using_cells_1;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Cell, GameOfLife};
+
+    #[test]
+    fn neighbour_count_test() {
+        let mut game = Box::new(GameOfLife::new());
+
+        game.set_cell(3, 4, 3, Cell::Alive);
+        game.set_cell(3, 4, 4, Cell::Alive);
+        game.set_cell(2, 2, 3, Cell::Alive);
+
+        assert_eq!(game.living_neighbours(3, 3, 3), 3);
     }
 }
