@@ -1,5 +1,7 @@
 // The file for the logic behind the game of life.
 
+use crate::{math::Mat4, renderer::Renderer, shaders::UsedShaderProgram};
+
 #[derive(Clone, Copy)]
 pub enum Cell {
     Alive,
@@ -60,6 +62,27 @@ impl GameOfLife {
         }
 
         neighbours_count
+    }
+
+    pub fn render(&self, renderer: &Renderer, shaders: &UsedShaderProgram, cell_size: f32) {
+        self.cells().iter().enumerate().for_each(|(y, layer)| {
+            layer.iter().enumerate().for_each(|(x, row)| {
+                row.iter()
+                    .enumerate()
+                    .filter(|(_, cell)| cell.is_alive())
+                    .for_each(|(z, _)| {
+                        let (x, y, z) = (
+                            x as f32 * cell_size,
+                            y as f32 * cell_size,
+                            z as f32 * cell_size,
+                        );
+
+                        let model = Mat4::translate(x, y, z);
+                        shaders.set_uniform("model", &model);
+                        renderer.render();
+                    })
+            })
+        })
     }
 
     pub fn cells(&self) -> &CellsArray {
