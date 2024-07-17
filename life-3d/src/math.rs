@@ -226,7 +226,7 @@ impl Mat4 {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::Mat4;
+    use super::Mat4;
 
     #[test]
     fn matrix_multiplication() {
