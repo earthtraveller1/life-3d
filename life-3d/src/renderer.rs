@@ -76,12 +76,12 @@ impl Mesh {
             indices: Vec::new(),
         };
 
-        mesh.append_cube_face(size, Axis::X, true, size/2.0);
-        mesh.append_cube_face(size, Axis::X, false, size/2.0);
-        mesh.append_cube_face(size, Axis::Y, true, size/2.0);
-        mesh.append_cube_face(size, Axis::Y, false, size/2.0);
-        mesh.append_cube_face(size, Axis::Z, true, size/2.0);
-        mesh.append_cube_face(size, Axis::Z, false, size/2.0);
+        mesh.append_cube_face(size, Axis::X, true, size / 2.0);
+        mesh.append_cube_face(size, Axis::X, false, size / 2.0);
+        mesh.append_cube_face(size, Axis::Y, true, size / 2.0);
+        mesh.append_cube_face(size, Axis::Y, false, size / 2.0);
+        mesh.append_cube_face(size, Axis::Z, true, size / 2.0);
+        mesh.append_cube_face(size, Axis::Z, false, size / 2.0);
 
         mesh
     }

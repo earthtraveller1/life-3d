@@ -130,7 +130,6 @@ impl UsedShaderProgram {
             value.set_uniform(location);
         }
     }
-
 }
 
 impl Drop for ShaderProgram {

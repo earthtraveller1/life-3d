@@ -8,7 +8,7 @@ use glfw::Context;
 
 use life_3d::{
     math::{Mat4, Quaternion, Vec3},
-    renderer::{Axis, Mesh, Renderer},
+    renderer::{Mesh, Renderer},
     shader_program_from_resources, shaders,
 };
 
@@ -75,7 +75,7 @@ fn main() {
     }
 
     let shader_program = shader_program_from_resources!(shaders::MAIN_VERT, shaders::MAIN_FRAG);
-    let mut mesh = Mesh::cube(1.0);
+    let mesh = Mesh::cube(1.0);
     let renderer = Renderer::new(&mesh);
 
     let window_size = window.get_size();
@@ -109,8 +109,10 @@ fn main() {
 
             let horizontal_axis = Vec3::new(0.0, 1.0, 0.0).normalize();
             let vertical_axis = Vec3::new(1.0, 0.0, 0.0).normalize();
-            let horizontal_rotation = Quaternion::new(&horizontal_axis, delta_mouse_x.to_radians() as f32 / 10.0);
-            let vertical_rotation = Quaternion::new(&vertical_axis, delta_mouse_y.to_radians() as f32 / 10.0);
+            let horizontal_rotation =
+                Quaternion::new(&horizontal_axis, delta_mouse_x.to_radians() as f32 / 10.0);
+            let vertical_rotation =
+                Quaternion::new(&vertical_axis, delta_mouse_y.to_radians() as f32 / 10.0);
 
             rotation = horizontal_rotation * vertical_rotation * rotation;
         }

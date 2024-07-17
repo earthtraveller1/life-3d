@@ -1,4 +1,5 @@
-pub mod shaders;
 pub mod buffers;
-pub mod renderer;
+pub mod game;
 pub mod math;
+pub mod renderer;
+pub mod shaders;
