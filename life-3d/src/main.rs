@@ -7,9 +7,7 @@ use glad_gl::gl;
 use glfw::Context;
 
 use life_3d::{
-    math::{Mat4, Quaternion, Vec3},
-    renderer::{Mesh, Renderer},
-    shader_program_from_resources, shaders,
+    game::{Cell, GameOfLife}, math::{Mat4, Quaternion, Vec3}, renderer::{Mesh, Renderer}, shader_program_from_resources, shaders
 };
 
 extern "system" fn opengl_debug_callback(
@@ -75,8 +73,9 @@ fn main() {
     }
 
     let shader_program = shader_program_from_resources!(shaders::MAIN_VERT, shaders::MAIN_FRAG);
-    let mesh = Mesh::cube(1.0);
-    let renderer = Renderer::new(&mesh);
+    const CELL_SIZE: f32 = 0.2;
+    let cell = Mesh::cube(CELL_SIZE);
+    let renderer = Renderer::new(&cell);
 
     let window_size = window.get_size();
     let (window_width, window_height) = window_size;
@@ -89,6 +88,11 @@ fn main() {
 
     let (mut previous_mouse_x, mut previous_mouse_y) = (0.0, 0.0);
     let mut has_set_mouse_x = false;
+
+    let mut game = GameOfLife::new();
+    game.set_cell(1, 1, 1, Cell::Alive);
+    game.set_cell(2, 2, 2, Cell::Alive);
+    game.set_cell(3, 3, 3, Cell::Alive);
 
     while !window.should_close() {
         unsafe {
@@ -117,12 +121,16 @@ fn main() {
             rotation = horizontal_rotation * vertical_rotation * rotation;
         }
 
-        let model = Mat4::translate(0.0, 0.0, -5.0) * rotation.to_rotation_matrix();
+        // let model = Mat4::translate(0.0, 0.0, -5.0) * rotation.to_rotation_matrix();
+        let view = Mat4::translate(0.0, 0.0, -3.0);
 
         let shader_program = shader_program.use_program();
-        shader_program.set_uniform("model", &model);
+        shader_program.set_uniform("view", &view);
         shader_program.set_uniform("projection", &projection);
-        renderer.render();
+        game.render(&renderer, &shader_program, CELL_SIZE);
+
+        /*shader_program.set_uniform("model", &model);
+        renderer.render();*/
 
         window.swap_buffers();
         glfw.poll_events();
