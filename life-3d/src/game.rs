@@ -52,7 +52,7 @@ impl GameOfLife {
                     let neighbour_y  = ((cell_y as i32+ y_offset) % ARENA_SIZE as i32) as usize;
                     let neighbour_z = ((cell_z as i32 + z_offset) % ARENA_SIZE as i32) as usize;
 
-                    if self.cells()[neighbour_y][neighbour_x][neighbour_z].is_alive() {
+                    if self.cell(neighbour_x, neighbour_y, neighbour_z).is_alive() {
                         neighbours_count += 1;
                     }
                 }
@@ -92,6 +92,14 @@ impl GameOfLife {
         } else {
             &mut self.cells_2
         }
+    }
+
+    pub fn cell(&self, x: usize, y: usize, z: usize) -> Cell {
+        self.cells()[y][x][z]
+    }
+
+    pub fn set_cell(&mut self, x: usize, y: usize, z: usize, cell: Cell) {
+        self.cells_mut()[y][x][z] = cell;
     }
 
     pub fn flip_buffers(&mut self) {
