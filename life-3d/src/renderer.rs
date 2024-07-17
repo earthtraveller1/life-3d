@@ -139,7 +139,7 @@ impl Mesh {
 }
 
 pub struct Renderer {
-    vertex_buffer: Buffer,
+    _vertex_buffer: Buffer,
     element_buffer: Buffer,
     vertex_array: VertexArray,
 
@@ -159,7 +159,7 @@ impl Renderer {
         }
 
         Renderer {
-            vertex_buffer,
+            _vertex_buffer: vertex_buffer,
             element_buffer,
             vertex_array,
             indices_count: target_mesh.indices.len() as i32,
