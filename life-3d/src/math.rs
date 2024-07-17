@@ -224,6 +224,42 @@ impl Mat4 {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use crate::math::Mat4;
+
+    #[test]
+    fn matrix_multiplication() {
+        let first = Mat4 {
+            data: [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, -5.0, 1.0],
+            ],
+        };
+        let second = Mat4 {
+            data: [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        };
+        let expected = Mat4 {
+            data: [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, -5.0, 1.0],
+            ],
+        };
+
+        let obtained = first * second;
+        assert_eq!(expected, obtained);
+    }
+}
+
 impl Mul for Mat4 {
     type Output = Mat4;
 
