@@ -67,6 +67,14 @@ impl Mul<f32> for Vec3 {
     }
 }
 
+impl Mul<Vec3> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        Vec3::new(self.x * rhs.x, self.y * rhs.y, self.z * rhs.z)
+    }
+}
+
 #[repr(C)]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Vec2 {
