@@ -7,7 +7,11 @@ use glad_gl::gl;
 use glfw::Context;
 
 use life_3d::{
-    game::{Cell, GameOfLife}, math::{Mat4, Quaternion, Vec3}, renderer::{Mesh, Renderer}, shader_program_from_resources, shaders
+    camera::Camera,
+    game::{Cell, GameOfLife},
+    math::{Quaternion, Vec3},
+    renderer::{Mesh, Renderer},
+    shader_program_from_resources, shaders,
 };
 
 extern "system" fn opengl_debug_callback(
@@ -94,7 +98,16 @@ fn main() {
     game.set_cell(2, 2, 2, Cell::Alive);
     game.set_cell(3, 3, 3, Cell::Alive);
 
+    let mut camera = Camera::new(&Vec3::new(0.0, 0.0, 3.0), &Vec3::new(0.0, 0.0, -1.0));
+
+    let mut delta_time;
+    let mut previous_time = 0.0;
+
     while !window.should_close() {
+        let current_time = glfw.get_time();
+        delta_time = current_time - previous_time;
+        previous_time = current_time;
+
         unsafe {
             gl::ClearColor(0.0, 0.0, 0.0, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
@@ -121,8 +134,16 @@ fn main() {
             rotation = horizontal_rotation * vertical_rotation * rotation;
         }
 
+        if let glfw::Action::Press = window.get_key(glfw::Key::W) {
+            camera.move_relative(Vec3::new(0.0, 0.0, delta_time as f32 * 3.0));
+        }
+        if let glfw::Action::Press = window.get_key(glfw::Key::S) {
+            camera.move_relative(Vec3::new(0.0, 0.0, -delta_time as f32 * 3.0));
+        }
+
         // let model = Mat4::translate(0.0, 0.0, -5.0) * rotation.to_rotation_matrix();
-        let view = Mat4::translate(0.0, 0.0, -3.0);
+        // let view = Mat4::translate(0.0, 0.0, -3.0);
+        let view = camera.view_matrix();
 
         let shader_program = shader_program.use_program();
         shader_program.set_uniform("view", &view);
