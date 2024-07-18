@@ -94,6 +94,7 @@ fn main() {
     let mut has_set_mouse_x = false;
 
     let mut game = GameOfLife::new();
+    game.set_cell(0, 0, 0, Cell::Alive);
     game.set_cell(1, 1, 1, Cell::Alive);
     game.set_cell(2, 2, 2, Cell::Alive);
     game.set_cell(3, 3, 3, Cell::Alive);
