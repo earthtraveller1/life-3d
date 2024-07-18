@@ -17,18 +17,27 @@ impl Camera {
             position: position.clone(),
             front: front.clone(),
             right: right.clone(),
-            up: front.cross(&right).normalize(),
+            up: right.cross(front).normalize(),
         }
     }
 
     pub fn view_matrix(&self) -> Mat4 {
         Mat4 {
             data: [
-                [self.right.x, self.up.x, self.front.x, self.position.x],
-                [self.right.y, self.up.y, self.front.y, self.position.y],
-                [self.right.z, self.up.z, self.front.z, self.position.z],
-                [0.0, 0.0, 0.0, 1.0],
+                [self.right.x, self.up.x, -self.front.x, 0.0],
+                [self.right.y, self.up.y, -self.front.y, 0.0],
+                [self.right.z, self.up.z, -self.front.z, 0.0],
+                [
+                    -self.right.dot(&self.position),
+                    -self.up.dot(&self.position),
+                    self.front.dot(&self.position),
+                    1.0,
+                ],
             ],
         }
+    }
+
+    pub fn move_relative(&mut self, direction: Vec3) {
+        self.position = self.position.clone() + direction * self.front.clone();
     }
 }
