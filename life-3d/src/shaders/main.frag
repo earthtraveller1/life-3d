@@ -4,6 +4,8 @@ out vec4 out_color;
 
 in vec3 position;
 
+uniform float cell_size;
+
 void main() {
-    out_color = vec4(position, 1.0);
+    out_color = vec4(position / cell_size, 1.0);
 }

@@ -147,6 +147,7 @@ fn main() {
         let view = camera.view_matrix();
 
         let shader_program = shader_program.use_program();
+        shader_program.set_uniform("cell_size", CELL_SIZE);
         shader_program.set_uniform("view", &view);
         shader_program.set_uniform("projection", &projection);
         game.render(&renderer, &shader_program, CELL_SIZE);
