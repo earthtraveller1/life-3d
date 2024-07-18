@@ -181,7 +181,7 @@ impl Mul for Quaternion {
 #[repr(C)]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Mat4 {
-    data: [[f32; 4]; 4],
+    pub(crate) data: [[f32; 4]; 4],
 }
 
 impl Mat4 {
