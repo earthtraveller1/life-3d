@@ -292,3 +292,9 @@ unsafe impl ShaderUniform for Mat4 {
         gl::UniformMatrix4fv(location, 1, gl::FALSE, self.data.as_ptr() as *const f32);
     }
 }
+
+unsafe impl ShaderUniform for &Mat4 {
+    unsafe fn set_uniform(&self, location: glad_gl::gl::GLint) {
+        (*self).set_uniform(location);
+    }
+}

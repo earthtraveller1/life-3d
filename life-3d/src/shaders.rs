@@ -65,6 +65,12 @@ pub unsafe trait ShaderUniform {
     unsafe fn set_uniform(&self, location: gl::GLint);
 }
 
+unsafe impl ShaderUniform for f32 {
+    unsafe fn set_uniform(&self, location: gl::GLint) {
+        gl::Uniform1f(location, *self);
+    }
+}
+
 impl ShaderProgram {
     pub fn new(
         vertex_source: &str,
@@ -120,7 +126,7 @@ impl ShaderProgram {
 }
 
 impl UsedShaderProgram {
-    pub fn set_uniform<T>(&self, name: &str, value: &T)
+    pub fn set_uniform<T>(&self, name: &str, value: T)
     where
         T: ShaderUniform,
     {
