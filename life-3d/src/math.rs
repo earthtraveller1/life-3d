@@ -5,7 +5,7 @@ use glad_gl::gl;
 use crate::shaders::ShaderUniform;
 
 #[repr(C)]
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Copy)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
@@ -88,7 +88,7 @@ impl Mul<Vec3> for Vec3 {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Copy)]
 pub struct Vec2 {
     pub x: f32,
     pub y: f32,
