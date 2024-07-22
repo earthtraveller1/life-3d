@@ -46,3 +46,48 @@ impl Camera {
         self.position = self.position.clone() + direction * self.front.clone();
     }
 }
+
+pub struct ThirdPersonCamera {
+    camera: Camera,
+    target: Vec3,
+    distance: f32,
+    yaw: f32,
+    pitch: f32,
+}
+
+impl ThirdPersonCamera {
+    pub fn new(target: Vec3, distance: f32, yaw: f32, pitch: f32) -> ThirdPersonCamera {
+        let camera_position = (Vec3 {
+            x: yaw.to_radians().cos() * pitch.to_radians().cos(),
+            y: pitch.to_radians().sin(),
+            z: yaw.to_radians().sin() * pitch.to_radians().cos(),
+        } * distance)
+            + target;
+
+        let camera_front = target - camera_position;
+
+        ThirdPersonCamera {
+            camera: Camera::new(&camera_position, &camera_front),
+            target,
+            distance,
+            yaw,
+            pitch,
+        }
+    }
+
+    pub fn view_matrix(&self) -> Mat4 {
+        self.camera.view_matrix()
+    }
+
+    pub fn rotate_camera(&mut self, yaw: f32, pitch: f32) {
+        self.yaw += yaw;
+        self.pitch += pitch;
+
+        self.camera.position = (Vec3 {
+            x: self.yaw.to_radians().cos() * self.pitch.to_radians().cos(),
+            y: self.pitch.to_radians().sin(),
+            z: self.yaw.to_radians().sin() * self.pitch.to_radians().cos(),
+        } * self.distance)
+            + self.target;
+    }
+}
