@@ -3,6 +3,7 @@ use glad_gl::gl::{self, GLenum, GLuint};
 pub enum BufferType {
     Vertex,
     Index,
+    ShaderStorage,
 }
 
 pub struct Buffer {
@@ -27,11 +28,16 @@ impl Buffer {
         match self.buffer_type {
             BufferType::Index => gl::ELEMENT_ARRAY_BUFFER,
             BufferType::Vertex => gl::ARRAY_BUFFER,
+            BufferType::ShaderStorage => gl::SHADER_STORAGE_BUFFER,
         }
     }
 
     pub fn bind(&self) {
         unsafe { gl::BindBuffer(self.get_target(), self.buffer) };
+    }
+
+    pub fn bind_base(&self, index: GLuint) {
+        unsafe { gl::BindBufferBase(self.get_target(), index, self.buffer) };
     }
 
     pub fn unbind(&self) {
