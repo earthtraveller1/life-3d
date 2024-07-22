@@ -21,7 +21,7 @@ impl Cell {
     }
 }
 
-const ARENA_SIZE: usize = 128;
+const ARENA_SIZE: usize = 16;
 type CellsArray = Vec<[[Cell; ARENA_SIZE]; ARENA_SIZE]>;
 
 pub struct GameOfLife {
@@ -72,9 +72,9 @@ impl GameOfLife {
                     .filter(|(_, cell)| cell.is_alive())
                     .for_each(|(z, _)| {
                         let (x, y, z) = (
-                            x as f32 * cell_size,
-                            y as f32 * cell_size,
-                            z as f32 * cell_size,
+                            (x as f32 * cell_size) - ((ARENA_SIZE / 2) as f32) * cell_size,
+                            (y as f32 * cell_size) - ((ARENA_SIZE / 2) as f32) * cell_size,
+                            (z as f32 * cell_size) - ((ARENA_SIZE / 2) as f32) * cell_size,
                         );
 
                         let model = Mat4::translate(x, y, z);
