@@ -7,7 +7,7 @@ use glad_gl::gl;
 use glfw::Context;
 
 use life_3d::{
-    camera::Camera,
+    camera::{Camera, ThirdPersonCamera},
     game::{Cell, GameOfLife},
     math::{Quaternion, Vec3},
     renderer::{Mesh, Renderer},
@@ -104,6 +104,8 @@ fn main() {
     let mut delta_time;
     let mut previous_time = 0.0;
 
+    let mut camera = ThirdPersonCamera::new(Vec3::new(0.0, 0.0, 0.0), 5.0, 0.0, 0.0);
+
     while !window.should_close() {
         let current_time = glfw.get_time();
         delta_time = current_time - previous_time;
@@ -146,11 +148,7 @@ fn main() {
         // let view = Mat4::translate(0.0, 0.0, -3.0);
         let view = camera.view_matrix();*/
 
-        let time = glfw.get_time();
-        let camera = Camera::look_at(
-            Vec3::new((time * 0.5).cos() as f32 * 5.0, 0.0, (time * 0.5).sin() as f32 * 5.0),
-            Vec3::new(0.0, 0.0, 0.0),
-        );
+        camera.rotate_camera(30.0 * delta_time as f32, 0.0);
         let view = camera.view_matrix();
 
         let shader_program = shader_program.use_program();

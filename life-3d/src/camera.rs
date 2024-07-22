@@ -21,9 +21,9 @@ impl Camera {
         }
     }
 
-    pub fn look_at(position: Vec3, target: Vec3) -> Camera {
-        let front = (target - position.clone()).normalize();
-        Camera::new(&position, &front)
+    fn update_up_and_right(&mut self) {
+        self.right = self.front.cross(&Vec3::new(0.0, 1.0, 0.0)).normalize();
+        self.up = self.right.cross(&self.front).normalize();
     }
 
     pub fn view_matrix(&self) -> Mat4 {
@@ -64,7 +64,7 @@ impl ThirdPersonCamera {
         } * distance)
             + target;
 
-        let camera_front = target - camera_position;
+        let camera_front = (target - camera_position).normalize();
 
         ThirdPersonCamera {
             camera: Camera::new(&camera_position, &camera_front),
@@ -89,5 +89,8 @@ impl ThirdPersonCamera {
             z: self.yaw.to_radians().sin() * self.pitch.to_radians().cos(),
         } * self.distance)
             + self.target;
+        self.camera.front = (self.target - self.camera.position).normalize();
+
+        self.camera.update_up_and_right();
     }
 }
