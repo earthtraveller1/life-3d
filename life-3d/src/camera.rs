@@ -21,6 +21,11 @@ impl Camera {
         }
     }
 
+    pub fn look_at(position: Vec3, target: Vec3) -> Camera {
+        let front = (target - position.clone()).normalize();
+        Camera::new(&position, &front)
+    }
+
     pub fn view_matrix(&self) -> Mat4 {
         Mat4 {
             data: [
