@@ -94,12 +94,12 @@ fn main() {
     let mut has_set_mouse_x = false;
 
     let mut game = GameOfLife::new();
-    game.set_cell(0, 0, 0, Cell::Alive);
-    game.set_cell(1, 1, 1, Cell::Alive);
-    game.set_cell(2, 2, 2, Cell::Alive);
-    game.set_cell(3, 3, 3, Cell::Alive);
 
-    let mut camera = Camera::new(&Vec3::new(0.0, 0.0, 3.0), &Vec3::new(0.0, 0.0, -1.0));
+    (0..16).for_each(|i| {
+        game.set_cell(i, i, i, Cell::Alive);
+    });
+
+    // let mut camera = Camera::new(&Vec3::new(0.0, 0.0, 3.0), &Vec3::new(0.0, 0.0, -1.0));
 
     let mut delta_time;
     let mut previous_time = 0.0;
@@ -135,7 +135,7 @@ fn main() {
             rotation = horizontal_rotation * vertical_rotation * rotation;
         }
 
-        if let glfw::Action::Press = window.get_key(glfw::Key::W) {
+        /*if let glfw::Action::Press = window.get_key(glfw::Key::W) {
             camera.move_relative(Vec3::new(0.0, 0.0, delta_time as f32 * 3.0));
         }
         if let glfw::Action::Press = window.get_key(glfw::Key::S) {
@@ -144,6 +144,13 @@ fn main() {
 
         // let model = Mat4::translate(0.0, 0.0, -5.0) * rotation.to_rotation_matrix();
         // let view = Mat4::translate(0.0, 0.0, -3.0);
+        let view = camera.view_matrix();*/
+
+        let time = glfw.get_time();
+        let camera = Camera::look_at(
+            Vec3::new((time * 0.5).cos() as f32 * 5.0, 0.0, (time * 0.5).sin() as f32 * 5.0),
+            Vec3::new(0.0, 0.0, 0.0),
+        );
         let view = camera.view_matrix();
 
         let shader_program = shader_program.use_program();
