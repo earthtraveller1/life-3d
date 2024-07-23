@@ -143,6 +143,9 @@ pub struct Renderer {
     element_buffer: Buffer,
     vertex_array: VertexArray,
 
+    instance_offsets: Vec<Vec3>,
+    shader_storage_buffer: Buffer,
+
     indices_count: GLsizei,
 }
 
@@ -150,6 +153,7 @@ impl Renderer {
     pub fn new(target_mesh: &Mesh) -> Renderer {
         let vertex_buffer = Buffer::with_data(BufferType::Vertex, target_mesh.vertices.as_slice());
         let element_buffer = Buffer::with_data(BufferType::Index, target_mesh.indices.as_slice());
+        let ssbo = Buffer::new(BufferType::ShaderStorage);
 
         let vertex_array = VertexArray::new();
         vertex_array.bind_buffer_and_attributes::<Vertex>(&vertex_buffer);
@@ -160,23 +164,54 @@ impl Renderer {
 
         Renderer {
             _vertex_buffer: vertex_buffer,
+            instance_offsets: Vec::new(),
             element_buffer,
+            shader_storage_buffer: ssbo,
             vertex_array,
             indices_count: target_mesh.indices.len() as i32,
         }
     }
 
+    pub fn add_instance(&mut self, offset: Vec3) {
+        self.instance_offsets.push(offset);
+    }
+    
+    pub fn remove_all_instances(&mut self) {
+        self.instance_offsets.clear();
+    }
+
     pub fn render(&self) {
         self.vertex_array.bind();
         self.element_buffer.bind();
+        self.shader_storage_buffer.bind();
+
         unsafe {
-            gl::DrawElements(
+            gl::BufferData(
+                gl::SHADER_STORAGE_BUFFER,
+                (self.instance_offsets.capacity() * size_of::<Vec3>())
+                    .try_into()
+                    .unwrap(),
+                self.instance_offsets.as_ptr() as *const c_void,
+                gl::STATIC_DRAW,
+            );
+
+            self.shader_storage_buffer.bind_base(0);
+
+            /* gl::DrawElements(
                 gl::TRIANGLES,
                 self.indices_count,
                 gl::UNSIGNED_INT,
                 std::ptr::null(),
-            )
-        };
+            ); */
+
+            gl::DrawElementsInstanced(
+                gl::TRIANGLES,
+                self.indices_count,
+                gl::UNSIGNED_INT,
+                std::ptr::null(),
+                self.instance_offsets.len().try_into().unwrap(),
+            );
+        }
     }
 }
 
