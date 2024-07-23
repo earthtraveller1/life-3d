@@ -1,6 +1,6 @@
 // The file for the logic behind the game of life.
 
-use crate::{math::Mat4, renderer::Renderer, shaders::UsedShaderProgram};
+use crate::{math::Vec3, renderer::Renderer};
 
 #[derive(Clone, Copy)]
 pub enum Cell {
@@ -64,7 +64,9 @@ impl GameOfLife {
         neighbours_count
     }
 
-    pub fn render(&self, renderer: &Renderer, shaders: &UsedShaderProgram, cell_size: f32) {
+    pub fn render(&self, renderer: &mut Renderer, cell_size: f32) {
+        renderer.remove_all_instances();
+
         self.cells().iter().enumerate().for_each(|(y, layer)| {
             layer.iter().enumerate().for_each(|(x, row)| {
                 row.iter()
@@ -77,12 +79,12 @@ impl GameOfLife {
                             (z as f32 * cell_size) - ((ARENA_SIZE / 2) as f32) * cell_size,
                         );
 
-                        let model = Mat4::translate(x, y, z);
-                        shaders.set_uniform("model", &model);
-                        renderer.render();
+                        renderer.add_instance(Vec3::new(x, y, z));
                     })
             })
-        })
+        });
+
+        renderer.render();
     }
 
     pub fn cells(&self) -> &CellsArray {

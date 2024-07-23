@@ -7,9 +7,9 @@ use glad_gl::gl;
 use glfw::Context;
 
 use life_3d::{
-    camera::{Camera, ThirdPersonCamera},
+    camera::ThirdPersonCamera,
     game::{Cell, GameOfLife},
-    math::{Quaternion, Vec3},
+    math::{Mat4, Quaternion, Vec3},
     renderer::{Mesh, Renderer},
     shader_program_from_resources, shaders,
 };
@@ -79,7 +79,7 @@ fn main() {
     let shader_program = shader_program_from_resources!(shaders::MAIN_VERT, shaders::MAIN_FRAG);
     const CELL_SIZE: f32 = 0.2;
     let cell = Mesh::cube(CELL_SIZE);
-    let renderer = Renderer::new(&cell);
+    let mut renderer = Renderer::new(&cell);
 
     let window_size = window.get_size();
     let (window_width, window_height) = window_size;
@@ -154,8 +154,9 @@ fn main() {
         let shader_program = shader_program.use_program();
         shader_program.set_uniform("cell_size", CELL_SIZE);
         shader_program.set_uniform("view", &view);
+        shader_program.set_uniform("model", Mat4::new(1.0));
         shader_program.set_uniform("projection", &projection);
-        game.render(&renderer, &shader_program, CELL_SIZE);
+        game.render(&mut renderer, CELL_SIZE);
 
         /*shader_program.set_uniform("model", &model);
         renderer.render();*/
