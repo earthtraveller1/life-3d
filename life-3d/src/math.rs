@@ -4,7 +4,7 @@ use glad_gl::gl;
 
 use crate::shaders::ShaderUniform;
 
-#[repr(C)]
+#[repr(C, align(16))]
 #[derive(Debug, Default, Clone, PartialEq, Copy)]
 pub struct Vec3 {
     pub x: f32,
@@ -87,7 +87,7 @@ impl Mul<Vec3> for Vec3 {
     }
 }
 
-#[repr(C)]
+#[repr(C, align(8))]
 #[derive(Debug, Default, Clone, PartialEq, Copy)]
 pub struct Vec2 {
     pub x: f32,
@@ -111,7 +111,7 @@ impl Add for Vec2 {
     }
 }
 
-#[repr(C)]
+#[repr(C, align(16))]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Vec4 {
     pub x: f32,
@@ -198,7 +198,7 @@ impl Mul for Quaternion {
     }
 }
 
-#[repr(C)]
+#[repr(C, align(16))]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Mat4 {
     pub(crate) data: [[f32; 4]; 4],
