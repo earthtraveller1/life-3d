@@ -8,10 +8,11 @@ use glfw::Context;
 
 use life_3d::{
     camera::ThirdPersonCamera,
-    game::{Cell, GameOfLife},
+    game::{Cell, Cursor, GameOfLife},
     math::{Mat4, Vec3},
     renderer::{Mesh, Renderer},
-    shader_program_from_resources, shaders,
+    shader_program_from_resources,
+    shaders,
 };
 
 extern "system" fn opengl_debug_callback(
@@ -57,6 +58,7 @@ fn main() {
 
     window.set_framebuffer_size_polling(true);
     window.set_scroll_polling(true);
+    window.set_key_polling(true);
 
     window.make_current();
     glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
@@ -108,6 +110,9 @@ fn main() {
 
     let max_tick_progress = 0.25;
     let mut tick_progress = 0.25;
+    let mut paused = true;
+
+    let mut cursor = Cursor::new();
 
     let mut camera = ThirdPersonCamera::new(Vec3::new(0.0, 0.0, 0.0), 5.0, 0.0, 0.0);
 
@@ -154,33 +159,24 @@ fn main() {
         if tick_progress >= max_tick_progress {
             tick_progress = 0.0;
             game.update_game();
-            eprintln!("UPDATE!!!");
         } else {
-            tick_progress += delta_time;
+            if !paused {
+                tick_progress += delta_time;
+            }
         }
-
-        /*if let glfw::Action::Press = window.get_key(glfw::Key::W) {
-            camera.move_relative(Vec3::new(0.0, 0.0, delta_time as f32 * 3.0));
-        }k
-        if let glfw::Action::Press = window.get_key(glfw::Key::S) {
-            camera.move_relative(Vec3::new(0.0, 0.0, -delta_time as f32 * 3.0));
-        }
-
-        // let model = Mat4::translate(0.0, 0.0, -5.0) * rotation.to_rotation_matrix();
-        // let view = Mat4::translate(0.0, 0.0, -3.0);
-        let view = camera.view_matrix();*/
 
         let view = camera.view_matrix();
 
-        let shader_program = shader_program.use_program();
-        shader_program.set_uniform("cell_size", CELL_SIZE);
-        shader_program.set_uniform("view", &view);
-        shader_program.set_uniform("model", Mat4::new(1.0));
-        shader_program.set_uniform("projection", &projection);
-        game.render(&mut renderer, CELL_SIZE);
+        {
+            let shader_program = shader_program.use_program();
+            shader_program.set_uniform("cell_size", CELL_SIZE);
+            shader_program.set_uniform("view", &view);
+            shader_program.set_uniform("model", Mat4::new(1.0));
+            shader_program.set_uniform("projection", &projection);
+            game.render(&mut renderer, CELL_SIZE, &cursor);
+        }
 
-        /*shader_program.set_uniform("model", &model);
-        renderer.render();*/
+        cursor.render(&game, &renderer, CELL_SIZE, &projection, &view);
 
         window.swap_buffers();
         glfw.poll_events();
@@ -198,6 +194,37 @@ fn main() {
 
                     zoom_speed += (factor as f32) * max_zoom_speed * (delta_time as f32);
                     zoom_speed = zoom_speed.clamp(-max_zoom_speed, max_zoom_speed);
+                }
+                glfw::WindowEvent::Key(key, _, action, _modifiers) => {
+                    match action {
+                        glfw::Action::Press => {
+                            match key {
+                                glfw::Key::Space => {
+                                    paused = !paused;
+                                }
+                                glfw::Key::W => {
+                                    cursor.move_x(-1);
+                                }
+                                glfw::Key::S => {
+                                    cursor.move_x(1);
+                                }
+                                glfw::Key::A => {
+                                    cursor.move_z(1);
+                                }
+                                glfw::Key::D => {
+                                    cursor.move_z(-1);
+                                }
+                                glfw::Key::Q => {
+                                    cursor.move_y(1);
+                                }
+                                glfw::Key::E => {
+                                    cursor.move_y(-1);
+                                }
+                                _ => {}
+                            }
+                        },
+                        _ => {}
+                    }
                 }
                 _ => {}
             }
