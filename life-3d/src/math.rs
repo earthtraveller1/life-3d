@@ -87,6 +87,12 @@ impl Mul<Vec3> for Vec3 {
     }
 }
 
+unsafe impl ShaderUniform for Vec3 {
+    unsafe fn set_uniform(&self, location: gl::GLint) {
+        gl::Uniform3f(location, self.x, self.y, self.z);
+    }
+}
+
 #[repr(C, align(8))]
 #[derive(Debug, Default, Clone, PartialEq, Copy)]
 pub struct Vec2 {
