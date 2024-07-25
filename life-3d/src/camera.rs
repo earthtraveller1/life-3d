@@ -83,6 +83,8 @@ impl ThirdPersonCamera {
         self.yaw += yaw;
         self.pitch += pitch;
 
+        self.pitch = self.pitch.clamp(-89.0, 89.0);
+
         self.camera.position = (Vec3 {
             x: self.yaw.to_radians().cos() * self.pitch.to_radians().cos(),
             y: self.pitch.to_radians().sin(),
