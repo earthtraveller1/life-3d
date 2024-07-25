@@ -1,11 +1,87 @@
 // The file for the logic behind the game of life.
 
-use crate::{math::Vec3, renderer::Renderer};
+use crate::{
+    math::{Mat4, Vec3},
+    renderer::Renderer,
+    shader_program_from_resources,
+    shaders::{self, ShaderProgram},
+};
 
 #[derive(Clone, Copy)]
 pub enum Cell {
     Alive,
     Dead,
+}
+
+pub struct Cursor {
+    x: u32,
+    y: u32,
+    z: u32,
+
+    shader_program: ShaderProgram,
+}
+
+impl Cursor {
+    pub fn new() -> Cursor {
+        Cursor {
+            x: ARENA_SIZE as u32 / 2,
+            y: ARENA_SIZE as u32 / 2,
+            z: ARENA_SIZE as u32 / 2,
+            shader_program: shader_program_from_resources!(
+                shaders::CURSOR_VERT,
+                shaders::CURSOR_FRAG
+            ),
+        }
+    }
+
+    pub fn move_x(&mut self, dx: u32) {
+        self.x += dx;
+    }
+
+    pub fn move_y(&mut self, dy: u32) {
+        self.y += dy;
+    }
+
+    pub fn move_z(&mut self, dz: u32) {
+        self.z += dz;
+    }
+
+    pub fn render(
+        &self,
+        game: &GameOfLife,
+        renderer: &Renderer,
+        cell_size: f32,
+        projection: &Mat4,
+        view: &Mat4,
+    ) {
+        let program = self.shader_program.use_program();
+
+        program.set_uniform(
+            "model",
+            Mat4::translate(
+                GameOfLife::to_real_coords(self.x as f32, cell_size),
+                GameOfLife::to_real_coords(self.y as f32, cell_size),
+                GameOfLife::to_real_coords(self.z as f32, cell_size),
+            ),
+        );
+        program.set_uniform("view", view);
+        program.set_uniform("projection", projection);
+
+        if game
+            .cell(
+                self.x.try_into().unwrap(),
+                self.y.try_into().unwrap(),
+                self.z.try_into().unwrap(),
+            )
+            .is_alive()
+        {
+            program.set_uniform("in_color", Vec3::new(1.0, 1.0, 0.0));
+        } else {
+            program.set_uniform("in_color", Vec3::new(0.0, 1.0, 0.0));
+        }
+
+        renderer.render_one(false);
+    }
 }
 
 impl Cell {
@@ -106,7 +182,7 @@ impl GameOfLife {
         (x as f32 * cell_size) - ((ARENA_SIZE / 2) as f32) * cell_size
     }
 
-    pub fn render(&self, renderer: &mut Renderer, cell_size: f32) {
+    pub fn render(&self, renderer: &mut Renderer, cell_size: f32, cursor: &Cursor) {
         renderer.remove_all_instances();
 
         self.cells().iter().enumerate().for_each(|(y, layer)| {
@@ -115,13 +191,18 @@ impl GameOfLife {
                     .enumerate()
                     .filter(|(_, cell)| cell.is_alive())
                     .for_each(|(z, _)| {
-                        let (x, y, z) = (
-                            Self::to_real_coords(x as f32, cell_size),
-                            Self::to_real_coords(y as f32, cell_size),
-                            Self::to_real_coords(z as f32, cell_size),
-                        );
+                        if x != cursor.x as usize
+                            && y != cursor.y as usize
+                            && z != cursor.z as usize
+                        {
+                            let (x, y, z) = (
+                                Self::to_real_coords(x as f32, cell_size),
+                                Self::to_real_coords(y as f32, cell_size),
+                                Self::to_real_coords(z as f32, cell_size),
+                            );
 
-                        renderer.add_instance(Vec3::new(x, y, z));
+                            renderer.add_instance(Vec3::new(x, y, z));
+                        }
                     })
             })
         });
