@@ -175,12 +175,12 @@ impl Renderer {
     pub fn add_instance(&mut self, offset: Vec3) {
         self.instance_offsets.push(offset);
     }
-    
+
     pub fn remove_all_instances(&mut self) {
         self.instance_offsets.clear();
     }
 
-    pub fn render(&self) {
+    pub fn render_many(&self) {
         self.vertex_array.bind();
         self.element_buffer.bind();
         self.shader_storage_buffer.bind();
@@ -212,6 +212,35 @@ impl Renderer {
                 self.instance_offsets.len().try_into().unwrap(),
             );
         }
+    }
+
+    pub fn render_one(&self, use_ssbo: bool) {
+        self.vertex_array.bind();
+        self.element_buffer.bind();
+
+        if use_ssbo {
+            unsafe {
+                gl::BufferData(
+                    gl::SHADER_STORAGE_BUFFER,
+                    (self.instance_offsets.capacity() * size_of::<Vec3>())
+                        .try_into()
+                        .unwrap(),
+                    self.instance_offsets.as_ptr() as *const c_void,
+                    gl::STATIC_DRAW,
+                )
+            };
+
+            self.shader_storage_buffer.bind_base(0);
+        }
+
+        unsafe {
+            gl::DrawElements(
+                gl::TRIANGLES,
+                self.indices_count,
+                gl::UNSIGNED_INT,
+                std::ptr::null(),
+            );
+        };
     }
 }
 
