@@ -7,6 +7,8 @@ pub struct UsedShaderProgram(gl::GLuint);
 
 pub const MAIN_VERT: &str = include_str!("shaders/main.vert");
 pub const MAIN_FRAG: &str = include_str!("shaders/main.frag");
+pub const CURSOR_VERT: &str = include_str!("shaders/cursor.vert");
+pub const CURSOR_FRAG: &str = include_str!("shaders/cursor.frag");
 
 // Creates an OpenGL shader of the specified type. `shader_type` must be of a
 // valid shader type
