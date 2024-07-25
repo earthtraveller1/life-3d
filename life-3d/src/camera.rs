@@ -82,9 +82,18 @@ impl ThirdPersonCamera {
     pub fn rotate_camera(&mut self, yaw: f32, pitch: f32) {
         self.yaw += yaw;
         self.pitch += pitch;
-
         self.pitch = self.pitch.clamp(-89.0, 89.0);
 
+        self.update_vectors();
+    }
+    
+    pub fn move_camera(&mut self, distance: f32) {
+        self.distance += distance;
+
+        self.update_vectors();
+    }
+
+    fn update_vectors(&mut self) {
         self.camera.position = (Vec3 {
             x: self.yaw.to_radians().cos() * self.pitch.to_radians().cos(),
             y: self.pitch.to_radians().sin(),
