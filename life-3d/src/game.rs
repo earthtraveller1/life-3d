@@ -34,16 +34,16 @@ impl Cursor {
         }
     }
 
-    pub fn move_x(&mut self, dx: u32) {
-        self.x += dx;
+    pub fn move_x(&mut self, dx: i32) {
+        self.x = ((self.x as i32) + dx) as u32
     }
 
-    pub fn move_y(&mut self, dy: u32) {
-        self.y += dy;
+    pub fn move_y(&mut self, dy: i32) {
+        self.y = ((self.y as i32) + dy) as u32
     }
 
-    pub fn move_z(&mut self, dz: u32) {
-        self.z += dz;
+    pub fn move_z(&mut self, dz: i32) {
+        self.z = ((self.z as i32) + dz) as u32
     }
 
     pub fn render(
@@ -192,8 +192,8 @@ impl GameOfLife {
                     .filter(|(_, cell)| cell.is_alive())
                     .for_each(|(z, _)| {
                         if x != cursor.x as usize
-                            && y != cursor.y as usize
-                            && z != cursor.z as usize
+                            || y != cursor.y as usize
+                            || z != cursor.z as usize
                         {
                             let (x, y, z) = (
                                 Self::to_real_coords(x as f32, cell_size),
