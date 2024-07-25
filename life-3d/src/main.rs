@@ -9,7 +9,7 @@ use glfw::Context;
 use life_3d::{
     camera::ThirdPersonCamera,
     game::{Cell, GameOfLife},
-    math::{Mat4, Quaternion, Vec3},
+    math::{Mat4, Vec3},
     renderer::{Mesh, Renderer},
     shader_program_from_resources, shaders,
 };
@@ -54,7 +54,9 @@ fn main() {
     let (mut window, events) = glfw
         .create_window(1280, 720, "Life 3D", glfw::WindowMode::Windowed)
         .expect("Failed to create the GLFW window.");
+
     window.set_framebuffer_size_polling(true);
+    window.set_scroll_polling(true);
 
     window.make_current();
     glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
@@ -88,8 +90,6 @@ fn main() {
     let mut projection =
         life_3d::math::Mat4::perspective(window_width / window_height, 0.1, 100.0, 45.0);
 
-    let mut rotation = Quaternion::new(&Vec3::new(1.0, 0.0, 0.0), 0.0);
-
     let (mut previous_mouse_x, mut previous_mouse_y) = (0.0, 0.0);
     let mut has_set_mouse_x = false;
 
@@ -103,6 +103,8 @@ fn main() {
 
     let mut delta_time;
     let mut previous_time = 0.0;
+    let mut zoom_speed = 0.0;
+    let max_zoom_speed = 150.0;
 
     let mut camera = ThirdPersonCamera::new(Vec3::new(0.0, 0.0, 0.0), 5.0, 0.0, 0.0);
 
@@ -127,19 +129,28 @@ fn main() {
             let (delta_mouse_x, delta_mouse_y) =
                 (mouse_x - previous_mouse_x, mouse_y - previous_mouse_y);
 
-            let horizontal_axis = Vec3::new(0.0, 1.0, 0.0).normalize();
-            let vertical_axis = Vec3::new(1.0, 0.0, 0.0).normalize();
-            let horizontal_rotation =
-                Quaternion::new(&horizontal_axis, delta_mouse_x.to_radians() as f32 / 10.0);
-            let vertical_rotation =
-                Quaternion::new(&vertical_axis, delta_mouse_y.to_radians() as f32 / 10.0);
-
-            rotation = horizontal_rotation * vertical_rotation * rotation;
+            let sensitivity = 5.0;
+            camera.rotate_camera(
+                sensitivity * (delta_time * delta_mouse_x) as f32,
+                sensitivity * (delta_time * delta_mouse_y) as f32,
+            );
         }
+
+        if (zoom_speed as f32).abs() > 1.0 {
+            camera.move_camera(-zoom_speed * (delta_time as f32));
+        }
+
+        if zoom_speed > 0.0 {
+            zoom_speed -= 50.0 * (delta_time as f32);
+        } else if zoom_speed < 0.0 {
+            zoom_speed += 50.0 * (delta_time as f32);
+        }
+
+        zoom_speed = zoom_speed.clamp(-max_zoom_speed, max_zoom_speed);
 
         /*if let glfw::Action::Press = window.get_key(glfw::Key::W) {
             camera.move_relative(Vec3::new(0.0, 0.0, delta_time as f32 * 3.0));
-        }
+        }k
         if let glfw::Action::Press = window.get_key(glfw::Key::S) {
             camera.move_relative(Vec3::new(0.0, 0.0, -delta_time as f32 * 3.0));
         }
@@ -148,7 +159,6 @@ fn main() {
         // let view = Mat4::translate(0.0, 0.0, -3.0);
         let view = camera.view_matrix();*/
 
-        camera.rotate_camera(30.0 * delta_time as f32, 0.0);
         let view = camera.view_matrix();
 
         let shader_program = shader_program.use_program();
@@ -171,9 +181,13 @@ fn main() {
                     let (width, height) = (width as f32, height as f32);
 
                     projection = life_3d::math::Mat4::perspective(width / height, 0.1, 100.0, 45.0);
-
-                    eprintln!("projection = {:?}", projection);
                 },
+                glfw::WindowEvent::Scroll(_xoffset, yoffset) => {
+                    let factor = yoffset / yoffset.abs();
+
+                    zoom_speed += (factor as f32) * max_zoom_speed * (delta_time as f32);
+                    zoom_speed = zoom_speed.clamp(-max_zoom_speed, max_zoom_speed);
+                }
                 _ => {}
             }
         }
