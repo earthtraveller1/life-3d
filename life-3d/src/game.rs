@@ -25,18 +25,25 @@ const ARENA_SIZE: usize = 16;
 type CellsArray = Vec<[[Cell; ARENA_SIZE]; ARENA_SIZE]>;
 
 pub struct GameOfLife {
-    cells_1: CellsArray,
-    cells_2: CellsArray,
-
-    using_cells_1: bool,
+    cells: CellsArray,
 }
 
 impl GameOfLife {
     pub fn new() -> GameOfLife {
         GameOfLife {
-            cells_1: vec![[[Cell::Dead; ARENA_SIZE]; ARENA_SIZE]; ARENA_SIZE],
-            cells_2: vec![[[Cell::Dead; ARENA_SIZE]; ARENA_SIZE]; ARENA_SIZE],
-            using_cells_1: true,
+            cells: vec![[[Cell::Dead; ARENA_SIZE]; ARENA_SIZE]; ARENA_SIZE],
+        }
+    }
+
+    fn clamp_coords(x: i32) -> usize {
+        let arena_max_index = ARENA_SIZE - 1;
+
+        if x < 0 {
+            ((arena_max_index as i32) + x).try_into().unwrap()
+        } else if x > arena_max_index as i32 {
+            (x - (arena_max_index as i32)).try_into().unwrap()
+        } else {
+            x.try_into().unwrap()
         }
     }
 
@@ -50,9 +57,9 @@ impl GameOfLife {
                         continue;
                     }
 
-                    let neighbour_x = ((cell_x as i32 + x_offset) % ARENA_SIZE as i32) as usize;
-                    let neighbour_y = ((cell_y as i32 + y_offset) % ARENA_SIZE as i32) as usize;
-                    let neighbour_z = ((cell_z as i32 + z_offset) % ARENA_SIZE as i32) as usize;
+                    let neighbour_x = Self::clamp_coords(cell_x as i32 + x_offset);
+                    let neighbour_y = Self::clamp_coords(cell_y as i32 + y_offset);
+                    let neighbour_z = Self::clamp_coords(cell_z as i32 + z_offset);
 
                     if self.cell(neighbour_x, neighbour_y, neighbour_z).is_alive() {
                         neighbours_count += 1;
@@ -62,6 +69,37 @@ impl GameOfLife {
         }
 
         neighbours_count
+    }
+
+    pub fn update_game(&mut self) {
+        let mut new_cells = vec![[[Cell::Dead; ARENA_SIZE]; ARENA_SIZE]; ARENA_SIZE];
+
+        for (y, layer) in self.cells().iter().enumerate() {
+            for (x, row) in layer.iter().enumerate() {
+                for (z, cell) in row.iter().enumerate() {
+                    let live_neighbours = self.living_neighbours(x, y, z);
+                    let new_cell = &mut new_cells[y][x][z];
+
+                    if cell.is_alive() {
+                        if live_neighbours < 2 {
+                            *new_cell = Cell::Dead;
+                        } else if live_neighbours == 2 || live_neighbours == 3 {
+                            *new_cell = Cell::Alive;
+                        } else if live_neighbours > 3 {
+                            *new_cell = Cell::Dead;
+                        }
+                    } else {
+                        if live_neighbours == 3 {
+                            *new_cell = Cell::Alive;
+                        } else {
+                            *new_cell = Cell::Dead;
+                        }
+                    }
+                }
+            }
+        }
+
+        self.cells = new_cells;
     }
 
     pub fn render(&self, renderer: &mut Renderer, cell_size: f32) {
@@ -88,35 +126,11 @@ impl GameOfLife {
     }
 
     pub fn cells(&self) -> &CellsArray {
-        if self.using_cells_1 {
-            &self.cells_1
-        } else {
-            &self.cells_2
-        }
-    }
-
-    pub fn back_cells(&self) -> &CellsArray {
-        if self.using_cells_1 {
-            &self.cells_2
-        } else {
-            &self.cells_1
-        }
-    }
-
-    pub fn back_cells_mut(&mut self) -> &mut CellsArray {
-        if self.using_cells_1 {
-            &mut self.cells_2
-        } else {
-            &mut self.cells_1
-        }
+        &self.cells
     }
 
     pub fn cells_mut(&mut self) -> &mut CellsArray {
-        if self.using_cells_1 {
-            &mut self.cells_1
-        } else {
-            &mut self.cells_2
-        }
+        &mut self.cells
     }
 
     pub fn cell(&self, x: usize, y: usize, z: usize) -> Cell {
@@ -125,10 +139,6 @@ impl GameOfLife {
 
     pub fn set_cell(&mut self, x: usize, y: usize, z: usize, cell: Cell) {
         self.cells_mut()[y][x][z] = cell;
-    }
-
-    pub fn flip_buffers(&mut self) {
-        self.using_cells_1 = !self.using_cells_1;
     }
 }
 
