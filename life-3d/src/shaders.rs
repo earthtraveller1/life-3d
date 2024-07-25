@@ -54,7 +54,7 @@ unsafe fn create_shader(
 #[macro_export]
 macro_rules! shader_program_from_resources {
     ($vert:expr, $frag:expr) => {
-        life_3d::shaders::ShaderProgram::new(
+        shaders::ShaderProgram::new(
             $vert,
             Some(stringify!($vert)),
             $frag,
