@@ -95,7 +95,7 @@ fn main() {
 
     let mut game = GameOfLife::new();
 
-    (0..16).for_each(|i| {
+    (2..14).for_each(|i| {
         game.set_cell(i, i, i, Cell::Alive);
     });
 
@@ -105,6 +105,9 @@ fn main() {
     let mut previous_time = 0.0;
     let mut zoom_speed = 0.0;
     let max_zoom_speed = 150.0;
+
+    let max_tick_progress = 0.25;
+    let mut tick_progress = 0.25;
 
     let mut camera = ThirdPersonCamera::new(Vec3::new(0.0, 0.0, 0.0), 5.0, 0.0, 0.0);
 
@@ -147,6 +150,14 @@ fn main() {
         }
 
         zoom_speed = zoom_speed.clamp(-max_zoom_speed, max_zoom_speed);
+
+        if tick_progress >= max_tick_progress {
+            tick_progress = 0.0;
+            game.update_game();
+            eprintln!("UPDATE!!!");
+        } else {
+            tick_progress += delta_time;
+        }
 
         /*if let glfw::Action::Press = window.get_key(glfw::Key::W) {
             camera.move_relative(Vec3::new(0.0, 0.0, delta_time as f32 * 3.0));
