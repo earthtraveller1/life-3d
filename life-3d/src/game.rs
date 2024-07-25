@@ -21,7 +21,7 @@ impl Cell {
     }
 }
 
-const ARENA_SIZE: usize = 16;
+pub const ARENA_SIZE: usize = 16;
 type CellsArray = Vec<[[Cell; ARENA_SIZE]; ARENA_SIZE]>;
 
 pub struct GameOfLife {
@@ -102,6 +102,10 @@ impl GameOfLife {
         self.cells = new_cells;
     }
 
+    pub fn to_real_coords(x: f32, cell_size: f32) -> f32 {
+        (x as f32 * cell_size) - ((ARENA_SIZE / 2) as f32) * cell_size
+    }
+
     pub fn render(&self, renderer: &mut Renderer, cell_size: f32) {
         renderer.remove_all_instances();
 
@@ -112,9 +116,9 @@ impl GameOfLife {
                     .filter(|(_, cell)| cell.is_alive())
                     .for_each(|(z, _)| {
                         let (x, y, z) = (
-                            (x as f32 * cell_size) - ((ARENA_SIZE / 2) as f32) * cell_size,
-                            (y as f32 * cell_size) - ((ARENA_SIZE / 2) as f32) * cell_size,
-                            (z as f32 * cell_size) - ((ARENA_SIZE / 2) as f32) * cell_size,
+                            Self::to_real_coords(x as f32, cell_size),
+                            Self::to_real_coords(y as f32, cell_size),
+                            Self::to_real_coords(z as f32, cell_size),
                         );
 
                         renderer.add_instance(Vec3::new(x, y, z));
@@ -122,7 +126,7 @@ impl GameOfLife {
             })
         });
 
-        renderer.render();
+        renderer.render_many();
     }
 
     pub fn cells(&self) -> &CellsArray {
