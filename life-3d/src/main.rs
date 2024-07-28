@@ -11,8 +11,7 @@ use life_3d::{
     game::{Cell, Cursor, GameOfLife},
     math::{Mat4, Vec3},
     renderer::{Mesh, Renderer},
-    shader_program_from_resources,
-    shaders,
+    shader_program_from_resources, shaders,
 };
 
 extern "system" fn opengl_debug_callback(
@@ -52,9 +51,15 @@ fn main() {
         glfw.window_hint(glfw::WindowHint::OpenGlDebugContext(true));
     }
 
-    let (mut window, events) = glfw
-        .create_window(1280, 720, "Life 3D", glfw::WindowMode::Windowed)
-        .expect("Failed to create the GLFW window.");
+    let (mut window, events) = glfw.with_primary_monitor(|glfw, monitor| {
+        let monitor = monitor.unwrap();
+        let video_mode = monitor.get_video_mode().unwrap();
+        let width = (0.75 * video_mode.width as f32) as u32;
+        let height = ((9.0 / 16.0) * width as f32) as u32;
+
+        glfw.create_window(width, height, "Life 3D", glfw::WindowMode::Windowed)
+            .expect("Failed to create the GLFW window.")
+    });
 
     window.set_framebuffer_size_polling(true);
     window.set_scroll_polling(true);
@@ -195,40 +200,36 @@ fn main() {
                     zoom_speed += (factor as f32) * max_zoom_speed * (delta_time as f32);
                     zoom_speed = zoom_speed.clamp(-max_zoom_speed, max_zoom_speed);
                 }
-                glfw::WindowEvent::Key(key, _, action, _modifiers) => {
-                    match action {
-                        glfw::Action::Press => {
-                            match key {
-                                glfw::Key::Space => {
-                                    paused = !paused;
-                                }
-                                glfw::Key::Enter => {
-                                    game.flip_at_cursor(&cursor);
-                                }
-                                glfw::Key::W => {
-                                    cursor.move_x(-1);
-                                }
-                                glfw::Key::S => {
-                                    cursor.move_x(1);
-                                }
-                                glfw::Key::A => {
-                                    cursor.move_z(1);
-                                }
-                                glfw::Key::D => {
-                                    cursor.move_z(-1);
-                                }
-                                glfw::Key::Q => {
-                                    cursor.move_y(1);
-                                }
-                                glfw::Key::E => {
-                                    cursor.move_y(-1);
-                                }
-                                _ => {}
-                            }
-                        },
+                glfw::WindowEvent::Key(key, _, action, _modifiers) => match action {
+                    glfw::Action::Press => match key {
+                        glfw::Key::Space => {
+                            paused = !paused;
+                        }
+                        glfw::Key::Enter => {
+                            game.flip_at_cursor(&cursor);
+                        }
+                        glfw::Key::W => {
+                            cursor.move_x(-1);
+                        }
+                        glfw::Key::S => {
+                            cursor.move_x(1);
+                        }
+                        glfw::Key::A => {
+                            cursor.move_z(1);
+                        }
+                        glfw::Key::D => {
+                            cursor.move_z(-1);
+                        }
+                        glfw::Key::Q => {
+                            cursor.move_y(1);
+                        }
+                        glfw::Key::E => {
+                            cursor.move_y(-1);
+                        }
                         _ => {}
-                    }
-                }
+                    },
+                    _ => {}
+                },
                 _ => {}
             }
         }
