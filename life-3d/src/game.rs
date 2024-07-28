@@ -209,6 +209,19 @@ impl GameOfLife {
 
         renderer.render_many();
     }
+    
+    pub fn flip_at_cursor(&mut self, cursor: &Cursor) {
+        self.set_cell(
+            cursor.x as usize,
+            cursor.y as usize,
+            cursor.z as usize,
+            if self.cell(cursor.x as usize, cursor.y as usize, cursor.z as usize).is_alive() {
+                Cell::Dead
+            } else {
+                Cell::Alive
+            },
+        );
+    }
 
     pub fn cells(&self) -> &CellsArray {
         &self.cells
