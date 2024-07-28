@@ -115,6 +115,7 @@ fn main() {
 
     let max_tick_progress = 0.25;
     let mut tick_progress = 0.25;
+    let mut tick_speed = 1.0;
     let mut paused = true;
 
     let mut cursor = Cursor::new();
@@ -166,7 +167,7 @@ fn main() {
             game.update_game();
         } else {
             if !paused {
-                tick_progress += delta_time;
+                tick_progress += tick_speed * delta_time;
             }
         }
 
@@ -207,6 +208,14 @@ fn main() {
                         }
                         glfw::Key::Enter => {
                             game.flip_at_cursor(&cursor);
+                        }
+                        glfw::Key::KpAdd => {
+                            tick_speed += 1.0;
+                            tick_speed = tick_speed.clamp(1.0, 5.0);
+                        }
+                        glfw::Key::KpSubtract => {
+                            tick_speed -= 1.0;
+                            tick_speed = tick_speed.clamp(1.0, 5.0);
                         }
                         glfw::Key::W => {
                             cursor.move_x(-1);
