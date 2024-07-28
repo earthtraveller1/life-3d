@@ -202,6 +202,9 @@ fn main() {
                                 glfw::Key::Space => {
                                     paused = !paused;
                                 }
+                                glfw::Key::Enter => {
+                                    game.flip_at_cursor(&cursor);
+                                }
                                 glfw::Key::W => {
                                     cursor.move_x(-1);
                                 }
