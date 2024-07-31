@@ -56,6 +56,36 @@ pub struct Mesh {
     indices: Vec<u32>,
 }
 
+pub struct BarsMesh {
+    mesh: Mesh,
+    bar_count: u32,
+}
+
+impl BarsMesh {
+    pub fn append_bar(&mut self, length: f32, width: f32) {
+        let vertex_offset: u32 = self.mesh.vertices.len().try_into().unwrap();
+
+        [
+            Vec3::new(width / 2.0, length / 2.0, 0.0),
+            Vec3::new(width / 2.0, -length / 2.0, 0.0),
+            Vec3::new(-width / 2.0, -length / 2.0, 0.0),
+            Vec3::new(-width / 2.0, length / 2.0, 0.0),
+        ]
+        .iter()
+        .for_each(|pos| {
+            self.mesh.vertices.push(Vertex {
+                position: *pos,
+                normal: Vec3::new(0.0, 0.0, 0.0),
+                uv: Vec2::new(0.0, 0.0),
+            })
+        });
+
+        [0, 1, 2, 0, 3, 2]
+            .iter()
+            .for_each(|i| self.mesh.indices.push(i + vertex_offset));
+    }
+}
+
 pub enum Axis {
     X,
     Y,
@@ -241,6 +271,36 @@ impl Renderer {
                 std::ptr::null(),
             );
         };
+    }
+}
+
+pub struct BarRenderer {
+    renderer: Renderer,
+    bar_count: u32,
+}
+
+impl BarRenderer {
+    pub fn new(mesh: &BarsMesh) -> BarRenderer {
+        BarRenderer {
+            renderer: Renderer::new(&mesh.mesh),
+            bar_count: mesh.bar_count,
+        }
+    }
+
+    pub fn render_bars(&self, bar_count: u32) {
+        assert!(self.bar_count >= bar_count);
+
+        self.renderer.vertex_array.bind();
+        self.renderer.element_buffer.bind();
+
+        unsafe {
+            gl::DrawElements(
+                gl::TRIANGLES,
+                (6 * bar_count) as i32,
+                gl::UNSIGNED_INT,
+                std::ptr::null(),
+            );
+        }
     }
 }
 
