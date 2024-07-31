@@ -74,7 +74,7 @@ impl BarsMesh {
         .iter()
         .for_each(|pos| {
             self.mesh.vertices.push(Vertex {
-                position: *pos,
+                position: *pos + Vec3::new(self.bar_count as f32 * width, 0.0, 0.0),
                 normal: Vec3::new(0.0, 0.0, 0.0),
                 uv: Vec2::new(0.0, 0.0),
             })
@@ -83,6 +83,8 @@ impl BarsMesh {
         [0, 1, 2, 0, 3, 2]
             .iter()
             .for_each(|i| self.mesh.indices.push(i + vertex_offset));
+
+        self.bar_count += 1;
     }
 }
 
