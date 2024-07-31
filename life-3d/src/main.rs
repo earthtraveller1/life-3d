@@ -102,14 +102,12 @@ fn main() {
 
     let mut game = GameOfLife::new();
 
-    game.set_cell(ARENA_SIZE/2, ARENA_SIZE/2, ARENA_SIZE/2, Cell::Alive);
+    game.set_cell(ARENA_SIZE / 2, ARENA_SIZE / 2, ARENA_SIZE / 2, Cell::Alive);
 
     // let mut camera = Camera::new(&Vec3::new(0.0, 0.0, 3.0), &Vec3::new(0.0, 0.0, -1.0));
 
     let mut delta_time;
     let mut previous_time = 0.0;
-    let mut zoom_speed = 0.0;
-    let max_zoom_speed = 150.0;
 
     let max_tick_progress = 0.25;
     let mut tick_progress = 0.25;
@@ -141,24 +139,12 @@ fn main() {
             let (delta_mouse_x, delta_mouse_y) =
                 (mouse_x - previous_mouse_x, mouse_y - previous_mouse_y);
 
-            let sensitivity = 5.0;
+            let sensitivity = 10.0;
             camera.rotate_camera(
                 sensitivity * (delta_time * delta_mouse_x) as f32,
                 sensitivity * (delta_time * delta_mouse_y) as f32,
             );
         }
-
-        if (zoom_speed as f32).abs() > 1.0 {
-            camera.move_camera(-zoom_speed * (delta_time as f32));
-        }
-
-        if zoom_speed > 0.0 {
-            zoom_speed -= 50.0 * (delta_time as f32);
-        } else if zoom_speed < 0.0 {
-            zoom_speed += 50.0 * (delta_time as f32);
-        }
-
-        zoom_speed = zoom_speed.clamp(-max_zoom_speed, max_zoom_speed);
 
         if tick_progress >= max_tick_progress {
             tick_progress = 0.0;
@@ -194,10 +180,9 @@ fn main() {
                     projection = life_3d::math::Mat4::perspective(width / height, 0.1, 100.0, 45.0);
                 },
                 glfw::WindowEvent::Scroll(_xoffset, yoffset) => {
-                    let factor = yoffset / yoffset.abs();
+                    let factor = (yoffset / yoffset.abs()) as f32;
 
-                    zoom_speed += (factor as f32) * max_zoom_speed * (delta_time as f32);
-                    zoom_speed = zoom_speed.clamp(-max_zoom_speed, max_zoom_speed);
+                    camera.move_camera(-factor * 10.0 * delta_time as f32);
                 }
                 glfw::WindowEvent::Key(key, _, action, _modifiers) => match action {
                     glfw::Action::Press => match key {
