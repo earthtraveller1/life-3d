@@ -8,7 +8,7 @@ use glfw::Context;
 
 use life_3d::{
     camera::ThirdPersonCamera,
-    game::{Cell, Cursor, GameOfLife},
+    game::{Cell, Cursor, GameOfLife, ARENA_SIZE},
     math::{Mat4, Vec3},
     renderer::{Mesh, Renderer},
     shader_program_from_resources, shaders,
@@ -86,7 +86,7 @@ fn main() {
     }
 
     let shader_program = shader_program_from_resources!(shaders::MAIN_VERT, shaders::MAIN_FRAG);
-    const CELL_SIZE: f32 = 0.2;
+    const CELL_SIZE: f32 = 0.1;
     let cell = Mesh::cube(CELL_SIZE);
     let mut renderer = Renderer::new(&cell);
 
@@ -102,9 +102,7 @@ fn main() {
 
     let mut game = GameOfLife::new();
 
-    (2..14).for_each(|i| {
-        game.set_cell(i, i, i, Cell::Alive);
-    });
+    game.set_cell(ARENA_SIZE/2, ARENA_SIZE/2, ARENA_SIZE/2, Cell::Alive);
 
     // let mut camera = Camera::new(&Vec3::new(0.0, 0.0, 3.0), &Vec3::new(0.0, 0.0, -1.0));
 

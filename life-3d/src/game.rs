@@ -97,7 +97,7 @@ impl Cell {
     }
 }
 
-pub const ARENA_SIZE: usize = 16;
+pub const ARENA_SIZE: usize = 128;
 type CellsArray = Vec<[[Cell; ARENA_SIZE]; ARENA_SIZE]>;
 
 pub struct GameOfLife {
