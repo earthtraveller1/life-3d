@@ -8,7 +8,7 @@ use glfw::Context;
 
 use life_3d::{
     camera::ThirdPersonCamera,
-    game::{Cell, Cursor, GameOfLife, ARENA_SIZE},
+    game::{Cursor, GameOfLife},
     math::{Mat4, Vec3},
     renderer::{BarRenderer, BarsMesh, Mesh, Renderer},
     shader_program_from_resources, shaders,
