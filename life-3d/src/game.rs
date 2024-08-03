@@ -157,15 +157,15 @@ impl GameOfLife {
                     let new_cell = &mut new_cells[y][x][z];
 
                     if cell.is_alive() {
-                        if live_neighbours < 2 {
+                        if live_neighbours < 3 {
                             *new_cell = Cell::Dead;
-                        } else if live_neighbours == 2 || live_neighbours == 3 {
+                        } else if live_neighbours == 3 || live_neighbours == 5 {
                             *new_cell = Cell::Alive;
-                        } else if live_neighbours > 3 {
+                        } else if live_neighbours > 5 {
                             *new_cell = Cell::Dead;
                         }
                     } else {
-                        if live_neighbours == 3 {
+                        if live_neighbours == 5 {
                             *new_cell = Cell::Alive;
                         } else {
                             *new_cell = Cell::Dead;
