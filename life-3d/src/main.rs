@@ -10,7 +10,7 @@ use life_3d::{
     camera::ThirdPersonCamera,
     game::{Cell, Cursor, GameOfLife, ARENA_SIZE},
     math::{Mat4, Vec3},
-    renderer::{Mesh, Renderer},
+    renderer::{BarRenderer, BarsMesh, Mesh, Renderer},
     shader_program_from_resources, shaders,
 };
 
@@ -97,12 +97,28 @@ fn main() {
     let mut projection =
         life_3d::math::Mat4::perspective(window_width / window_height, 0.1, 100.0, 45.0);
 
+    let mut flat_projection = Mat4::orthographic(
+        0.0,
+        window_width.into(),
+        0.0,
+        window_width.into(),
+        1.0,
+        -1.0,
+    );
+
     let (mut previous_mouse_x, mut previous_mouse_y) = (0.0, 0.0);
     let mut has_set_mouse_x = false;
 
     let mut game = GameOfLife::new();
 
     game.set_cell(ARENA_SIZE / 2, ARENA_SIZE / 2, ARENA_SIZE / 2, Cell::Alive);
+
+    let mut bar_mesh = BarsMesh::new();
+    (0..5).for_each(|_| {
+        bar_mesh.append_bar(100.0, 20.0);
+    });
+    let bar_renderer = BarRenderer::new(&bar_mesh);
+    let bar_shader = shader_program_from_resources!(shaders::CURSOR_VERT, shaders::FLAT_FRAG);
 
     // let mut camera = Camera::new(&Vec3::new(0.0, 0.0, 3.0), &Vec3::new(0.0, 0.0, -1.0));
 
@@ -111,7 +127,7 @@ fn main() {
 
     let max_tick_progress = 0.25;
     let mut tick_progress = 0.25;
-    let mut tick_speed = 1.0;
+    let mut tick_speed = 1;
     let mut paused = true;
 
     let mut cursor = Cursor::new();
@@ -151,7 +167,7 @@ fn main() {
             game.update_game();
         } else {
             if !paused {
-                tick_progress += tick_speed * delta_time;
+                tick_progress += tick_speed as f64 * delta_time;
             }
         }
 
@@ -168,6 +184,17 @@ fn main() {
 
         cursor.render(&game, &renderer, CELL_SIZE, &projection, &view);
 
+        {
+            let transform = Mat4::translate(50.0, 100.0, 0.0);
+
+            let shader_program = bar_shader.use_program();
+            shader_program.set_uniform("model", transform);
+            shader_program.set_uniform("view", Mat4::new(1.0));
+            shader_program.set_uniform("projection", &flat_projection);
+
+            bar_renderer.render_bars(tick_speed);
+        }
+
         window.swap_buffers();
         glfw.poll_events();
 
@@ -178,6 +205,8 @@ fn main() {
                     let (width, height) = (width as f32, height as f32);
 
                     projection = life_3d::math::Mat4::perspective(width / height, 0.1, 100.0, 45.0);
+                    flat_projection =
+                        Mat4::orthographic(0.0, width as f32, 0.0, height as f32, 1.0, -1.0);
                 },
                 glfw::WindowEvent::Scroll(_xoffset, yoffset) => {
                     let factor = (yoffset / yoffset.abs()) as f32;
@@ -193,12 +222,12 @@ fn main() {
                             game.flip_at_cursor(&cursor);
                         }
                         glfw::Key::KpAdd => {
-                            tick_speed += 1.0;
-                            tick_speed = tick_speed.clamp(1.0, 5.0);
+                            tick_speed += 1;
+                            tick_speed = tick_speed.clamp(1, 5);
                         }
                         glfw::Key::KpSubtract => {
-                            tick_speed -= 1.0;
-                            tick_speed = tick_speed.clamp(1.0, 5.0);
+                            tick_speed -= 1;
+                            tick_speed = tick_speed.clamp(1, 5);
                         }
                         glfw::Key::W => {
                             cursor.move_x(-1);
