@@ -27,3 +27,33 @@ Build and run the project.
 ----
 cargo run --release
 ----
+
+== How to Use
+
+=== Looking around
+
+You can use the middle mouse button to drag the camera and look around. Use the
+scroll wheel to zoom in and out. Currently, the controls might be a bit janky,
+mostly because I am an idiot.
+
+=== Cursor
+
+Because I am too lazy to implement ray casting and a proper system for placing
+blocks, there exists something known as the "cursor". The cursor is the block that
+starts at the center of the "arena", and can be moved around with WASD on the horizontal
+plane, and with Q to move it up and E to move it down.
+
+The cursor can be used to place or remove cells. When in the position of a living cell,
+it is yellow, and when in the position of a dead cell, it is green. Pressing enter will
+invert the state of the cell that the cursor is standing on.
+
+Of course, this is a very janky way to place blocks, so I added a feature that 
+will allow the cursor to autonomously scribble on the arena. Simply press r and it 
+will start doing it's thing. To stop the cursor's scribbling, press r again.
+
+=== Playing and Speed
+
+To pause or unpause the game, simply hit the spacebar. By default, the game is running
+at the slowest speed, as indicated by the bars at the upper left corner. To speed up
+or slow down the game, use the + and - keys on the number pad, respectively (if you don't 
+have a number pad, well, sucks for you I guess).
