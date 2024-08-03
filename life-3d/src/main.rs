@@ -13,6 +13,7 @@ use life_3d::{
     renderer::{BarRenderer, BarsMesh, Mesh, Renderer},
     shader_program_from_resources, shaders,
 };
+use rand::Rng;
 
 extern "system" fn opengl_debug_callback(
     _source: gl::GLenum,
@@ -111,8 +112,6 @@ fn main() {
 
     let mut game = GameOfLife::new();
 
-    game.set_cell(ARENA_SIZE / 2, ARENA_SIZE / 2, ARENA_SIZE / 2, Cell::Alive);
-
     let mut bar_mesh = BarsMesh::new();
     (0..5).for_each(|_| {
         bar_mesh.append_bar(100.0, 20.0);
@@ -129,6 +128,9 @@ fn main() {
     let mut tick_progress = 0.25;
     let mut tick_speed = 1;
     let mut paused = true;
+    let mut random_cursor = false;
+
+    let mut rng = rand::thread_rng();
 
     let mut cursor = Cursor::new();
 
@@ -168,6 +170,33 @@ fn main() {
         } else {
             if !paused {
                 tick_progress += tick_speed as f64 * delta_time;
+            }
+
+            if random_cursor {
+                let stuff = rng.gen_range(1..=6);
+                match stuff {
+                    1 => {
+                        cursor.move_x(-1);
+                    }
+                    2 => {
+                        cursor.move_x(1);
+                    }
+                    3 => {
+                        cursor.move_z(1);
+                    }
+                    4 => {
+                        cursor.move_z(-1);
+                    }
+                    5 => {
+                        cursor.move_y(1);
+                    }
+                    6 => {
+                        cursor.move_y(-1);
+                    }
+                    _ => {}
+                }
+
+                game.flip_at_cursor(&cursor);
             }
         }
 
@@ -246,6 +275,9 @@ fn main() {
                         }
                         glfw::Key::E => {
                             cursor.move_y(-1);
+                        }
+                        glfw::Key::R => {
+                            random_cursor = !random_cursor;
                         }
                         _ => {}
                     },
