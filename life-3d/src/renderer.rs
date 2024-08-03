@@ -62,6 +62,13 @@ pub struct BarsMesh {
 }
 
 impl BarsMesh {
+    pub fn new() -> BarsMesh {
+        BarsMesh {
+            mesh: Mesh::new(),
+            bar_count: 0,
+        }
+    }
+
     pub fn append_bar(&mut self, length: f32, width: f32) {
         let vertex_offset: u32 = self.mesh.vertices.len().try_into().unwrap();
 
@@ -73,8 +80,10 @@ impl BarsMesh {
         ]
         .iter()
         .for_each(|pos| {
+            let offset = Vec3::new(self.bar_count as f32 * width * 2.0, 0.0, 0.0);
+
             self.mesh.vertices.push(Vertex {
-                position: *pos + Vec3::new(self.bar_count as f32 * width, 0.0, 0.0),
+                position: *pos + offset,
                 normal: Vec3::new(0.0, 0.0, 0.0),
                 uv: Vec2::new(0.0, 0.0),
             })
